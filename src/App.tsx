@@ -4,7 +4,6 @@ import Sidebar from "./components/Admin/Sidebar";
 import { PanelRightOpen, PanelLeftOpen } from "lucide-react";
 import Dashboard from "./pages/Admin/Dashboard";
 import ProductList from "./pages/Admin/Products/ProductList";
-import Invoice from "./pages/Admin/Report";
 import { Route, Routes } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
 import CreateProduct from "./pages/Admin/Products/CreateProduct";
