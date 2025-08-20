@@ -56,6 +56,7 @@ function App() {
             {/* Products Route */}
             <Route path="/products/list" element={<ProductList />} />
             <Route path="/products/create" element={<CreateProduct />} />
+            <Route path="/products/:id/edit" element={<CreateProduct />} />
 
             {/* Inventory Route */}
             <Route path="/inventory/stock" element={<Stock />} />

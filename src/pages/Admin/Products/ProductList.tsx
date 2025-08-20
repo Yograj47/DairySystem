@@ -3,9 +3,10 @@ import { Button, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { paginate } from "../../../utils/Pagination";
+import axios from 'axios'
 
 export interface IProduct {
-    id: number;
+    id: string;
     name: string;
     category: string;
     saleRate: number;
@@ -16,17 +17,17 @@ export interface IProduct {
 function ProductList() {
     const [search, setSearch] = useState<string>("");
     const [currPage, setCurrentPage] = useState(1);
-    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
     const [products, setProducts] = useState<IProduct[]>([]);
 
-    const dataPerPage = 10;
+    const dataPerPage = 12;
 
     useEffect(() => {
         async function fetchProduct() {
             try {
-                const response = await fetch("/Data/Products.json");
-                const data = await response.json();
-                setProducts(data);
+                const response = await axios.get("http://localhost:5000/products");
+                setProducts(response.data);
+
             } catch (err) {
                 console.error("Error fetching products:", err);
             }
@@ -89,12 +90,12 @@ function ProductList() {
             <div className="flex-1 overflow-auto">
                 <table className="w-full table-fixed border-collapse">
                     <colgroup>
-                        <col style={{ width: "40px" }} /> {/* Checkbox */}
-                        <col style={{ width: "50px" }} /> {/* ID */}
-                        <col style={{ width: "25%" }} /> {/* Name */}
-                        <col style={{ width: "20%" }} /> {/* Category */}
-                        <col style={{ width: "15%" }} /> {/* Purchase Rate */}
-                        <col style={{ width: "15%" }} /> {/* Sale Rate */}
+                        <col style={{ width: "40px" }} />
+                        <col style={{ width: "50px" }} />
+                        <col style={{ width: "25%" }} />
+                        <col style={{ width: "20%" }} />
+                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "15%" }} />
                     </colgroup>
                     <thead className="bg-blue-100 sticky top-0 z-10">
                         <tr>

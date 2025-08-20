@@ -10,18 +10,33 @@ import {
     Button,
     Typography,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
-interface ProductData {
-    name: string;
-    purchaseRate: number;
-    saleRate: number;
-    unit: string;
-    category: string;
-}
+const ProductSchema = z.object({
+    name: z.string().min(3, { message: "Product name is required" }),
+    purchaseRate: z.coerce.number().positive("Purchase rate must be > 0"),
+    saleRate: z.coerce.number().positive("Sale rate must be > 0"),
+    unit: z.string().min(1, "Unit is required"),
+    category: z.string().min(1, "Category is required"),
+});
+
+type ProductData = z.infer<typeof ProductSchema>;
 
 function CreateProduct() {
-    const { register, handleSubmit, control, reset } = useForm<ProductData>({
+    const { id } = useParams();
+
+    const {
+        handleSubmit,
+        control,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<ProductData>({
+        resolver: zodResolver(ProductSchema) as Resolver<ProductData>,
         defaultValues: {
             name: "",
             purchaseRate: 0,
@@ -31,46 +46,80 @@ function CreateProduct() {
         },
     });
 
+    useEffect(() => {
+        if (id) {
+            axios
+                .get(`http://localhost:5000/products/${id}`)
+                .then((res) => reset(res.data))
+                .catch((err) => console.error("Failed to fetch product:", err));
+        }
+    }, [id, reset]);
 
-    const onSubmit = (data: ProductData) => {
-        console.log("Product Created:", data);
-        window.alert(`Product Created: ${data.name}`);
-        reset();
+    const onSubmit = async (data: ProductData) => {
+        try {
+            const response = !id
+                ? await axios.post("http://localhost:5000/products", data)
+                : await axios.patch(`http://localhost:5000/products/${id}`, data);
+
+            console.log("Response:", response.data);
+            alert(!id ? "Edited Successfully" : "Added Successfully")
+            if (!id) reset();
+        } catch (error) {
+            console.error("Error saving product:", error);
+        }
     };
 
     return (
         <Box className="h-full w-full flex justify-center items-start p-4">
-            <Card className="w-full max-w-lg shadow-md rounded-xl">
+            <Card className="w-full max-w-lg">
                 <CardContent>
-                    <Typography variant="h5" className="font-semibold">
-                        Create Product
+                    <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", margin: ".5rem 0 1rem" }}
+                    >
+                        {!id ? "Create Product" : "Edit Product"}
                     </Typography>
 
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="flex flex-col gap-4 mt-4"
-                    >
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         {/* Product Name */}
-                        <TextField
-                            {...register("name", { required: "Product name is required" })}
-                            label="Name"
-                            placeholder="Butter Milk"
-                            fullWidth
+                        <Controller
+                            name="name"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    {...field}
+                                    label="Product Name"
+                                    placeholder="Butter Milk"
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: !!field.value }}
+                                />
+                            )}
                         />
 
                         {/* Purchase Rate + Unit */}
-                        <Box className="flex gap-4 justify-center items-center">
-                            <TextField
-                                {...register("purchaseRate", { valueAsNumber: true })}
-                                label="Purchase Rate"
-                                type="number"
-                                placeholder="eg. 100"
-                                fullWidth
+                        <Box className="flex gap-4 items-center">
+                            <Controller
+                                name="purchaseRate"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        label="Purchase Rate"
+                                        type="number"
+                                        placeholder="eg. 100"
+                                        error={!!errors.purchaseRate}
+                                        helperText={errors.purchaseRate?.message}
+                                        fullWidth
+                                        InputLabelProps={{ shrink: !!field.value }}
+                                    />
+                                )}
                             />
 
                             <Typography variant="body1">Per</Typography>
 
-                            <FormControl fullWidth>
+                            <FormControl fullWidth error={!!errors.unit}>
                                 <InputLabel id="unit-label">Unit</InputLabel>
                                 <Controller
                                     name="unit"
@@ -87,15 +136,26 @@ function CreateProduct() {
                             </FormControl>
                         </Box>
 
-                        <TextField
-                            {...register("saleRate", { valueAsNumber: true })}
-                            label="Sale Rate"
-                            type="number"
-                            fullWidth
+                        {/* Sale Rate */}
+                        <Controller
+                            name="saleRate"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField
+                                    {...field}
+                                    label="Sale Rate"
+                                    type="number"
+                                    placeholder="eg. 150"
+                                    error={!!errors.saleRate}
+                                    helperText={errors.saleRate?.message}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: !!field.value }}
+                                />
+                            )}
                         />
 
                         {/* Category */}
-                        <FormControl fullWidth>
+                        <FormControl fullWidth error={!!errors.category}>
                             <InputLabel id="category-label">Category</InputLabel>
                             <Controller
                                 name="category"
@@ -115,8 +175,13 @@ function CreateProduct() {
                         </FormControl>
 
                         {/* Submit */}
-                        <Button type="submit" variant="contained" color="primary">
-                            Save Product
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "Uploading..." : "Save Product"}
                         </Button>
                     </form>
                 </CardContent>

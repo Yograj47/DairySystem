@@ -1,0 +1,280 @@
+{
+  "products": [
+    {
+      "id": "fa57",
+      "name": "Butter Milk",
+      "purchaseRate": 120,
+      "saleRate": 150,
+      "unit": "ltr",
+      "category": "Milk"
+    },
+    {
+      "id": "p001",
+      "name": "Fresh Milk",
+      "purchaseRate": 40,
+      "saleRate": 50,
+      "unit": "ltr",
+      "category": "Milk"
+    },
+    {
+      "id": "p002",
+      "name": "Cow Milk",
+      "purchaseRate": 42,
+      "saleRate": 55,
+      "unit": "ltr",
+      "category": "Milk"
+    },
+    {
+      "id": "p003",
+      "name": "Buffalo Milk",
+      "purchaseRate": 48,
+      "saleRate": 60,
+      "unit": "ltr",
+      "category": "Milk"
+    },
+    {
+      "id": "p004",
+      "name": "Paneer",
+      "purchaseRate": 220,
+      "saleRate": 280,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "p005",
+      "name": "Cheddar Cheese",
+      "purchaseRate": 400,
+      "saleRate": 480,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "p006",
+      "name": "Mozzarella Cheese",
+      "purchaseRate": 380,
+      "saleRate": 460,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "p007",
+      "name": "Butter",
+      "purchaseRate": 300,
+      "saleRate": 360,
+      "unit": "kg",
+      "category": "Butter"
+    },
+    {
+      "id": "p008",
+      "name": "Ghee",
+      "purchaseRate": 500,
+      "saleRate": 600,
+      "unit": "kg",
+      "category": "Butter"
+    },
+    {
+      "id": "p009",
+      "name": "Curd",
+      "purchaseRate": 60,
+      "saleRate": 80,
+      "unit": "kg",
+      "category": "Milk"
+    },
+    {
+      "id": "p010",
+      "name": "Flavored Yogurt",
+      "purchaseRate": 90,
+      "saleRate": 120,
+      "unit": "kg",
+      "category": "Milk"
+    },
+    {
+      "id": "p011",
+      "name": "Cream cheese",
+      "purchaseRate": 250,
+      "saleRate": 320,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "p012",
+      "name": "Milk Powder",
+      "purchaseRate": 280,
+      "saleRate": 340,
+      "unit": "kg",
+      "category": "Milk"
+    },
+    {
+      "id": "p013",
+      "name": "Ice Cream",
+      "purchaseRate": 180,
+      "saleRate": 220,
+      "unit": "kg",
+      "category": "Milk"
+    },
+    {
+      "id": "p014",
+      "name": "Khoa (Mawa)",
+      "purchaseRate": 320,
+      "saleRate": 400,
+      "unit": "kg",
+      "category": "Milk"
+    }
+  ],
+  "stock": [
+    {
+      "id": "1",
+      "productId": "fa57",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "2",
+      "productId": "p001",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "3",
+      "productId": "p002",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "4",
+      "productId": "p003",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "5",
+      "productId": "p004",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "6",
+      "productId": "p005",
+      "total": 30,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "7",
+      "productId": "p006",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "8",
+      "productId": "p007",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "9",
+      "productId": "p008",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "10",
+      "productId": "p009",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "11",
+      "productId": "p010",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "12",
+      "productId": "p011",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "13",
+      "productId": "p012",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "14",
+      "productId": "p013",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    },
+    {
+      "id": "15",
+      "productId": "p014",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "In Stock",
+      "date": "2025-08-20"
+    }
+  ],
+  "purchases": [
+    {
+      "id": "ff88",
+      "supplierName": "Jack Dai",
+      "productId": "p004",
+      "quantity": 30,
+      "price": 280,
+      "date": "2025-08-20T00:00:00.000Z"
+    },
+    {
+      "id": "9345",
+      "supplierName": "Jack Dai",
+      "productId": "p005",
+      "quantity": 30,
+      "price": 480,
+      "date": "2025-08-20T00:00:00.000Z"
+    }
+  ],
+  "sales": []
+}

@@ -2,13 +2,16 @@ import { TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { paginate } from "../../../utils/Pagination";
 import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
+import axios from "axios";
+import type { IProduct } from "../Products/ProductList";
 
-export interface IProduct {
-    id: number;
-    sku: string;
-    name: string;
-    category: string;
-    stock: { total: number; sold: number; remaining: number };
+export interface IStock extends IProduct {
+    id: string;
+    productId: string;
+    total: number;
+    sold: number;
+    remaining: number;
+    status: string;
 }
 
 interface IOverview {
@@ -19,8 +22,8 @@ interface IOverview {
 }
 
 export default function Stock() {
-    const [stocks, setStocks] = useState<IProduct[]>([]);
-    const [overview, setOverview] = useState<IOverview>();
+    const [stocks, setStocks] = useState<IStock[]>([]);
+    const [products, setProducts] = useState<IProduct[]>([]);
     const [search, setSearch] = useState("");
     const [currPage, setCurrPage] = useState(1);
     const [sortKey, setSortKey] = useState<"name" | "category" | "remaining">("name");
@@ -31,16 +34,36 @@ export default function Stock() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch("/Data/Stock.json");
-                const data = await res.json();
-                setStocks(data.products);
-                setOverview(data.overview);
+                const res = await axios.get("http://localhost:5000/stock");
+                const res1 = await axios.get("http://localhost:5000/products");
+                setStocks(res.data);
+                setProducts(res1.data)
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
         }
         fetchData();
     }, []);
+
+    const StockData = stocks.map((s) => {
+        const product = products.find(p => s.productId === p.id);
+        return {
+            ...s,
+            name: product ? product.name : "",
+            category: product ? product.category : ""
+        }
+    })
+
+
+    const overview: IOverview = {
+        totalProducts: StockData.length,
+        lowStockCount: StockData.filter(s => s.remaining > 0 && s.remaining < 20).length,
+        outOfStockCount: StockData.filter(s => s.remaining === 0).length,
+        totalStockValue: StockData.reduce((acc, s) => {
+            const product = products.find(p => p.id === s.productId);
+            return acc + (product ? product.purchaseRate * s.total : 0);
+        }, 0)
+    }
 
     // Compute status dynamically
     const computeStatus = (remaining: number) => {
@@ -50,7 +73,7 @@ export default function Stock() {
     };
 
     // Search filter
-    const filteredProducts = stocks.filter(
+    const filteredProducts = StockData.filter(
         (p) =>
             p.name.toLowerCase().includes(search.toLowerCase()) ||
             p.category.toLowerCase().includes(search.toLowerCase())
@@ -62,8 +85,8 @@ export default function Stock() {
         let valB: string | number;
 
         if (sortKey === "remaining") {
-            valA = a.stock.remaining;
-            valB = b.stock.remaining;
+            valA = a.remaining;
+            valB = b.remaining;
         } else {
             valA = a[sortKey];
             valB = b[sortKey];
@@ -78,7 +101,7 @@ export default function Stock() {
         return 0;
     });
 
-    const { items: currProducts, totalPages } = paginate<IProduct>({
+    const { items: currProducts, totalPages } = paginate<IStock>({
         items: sortedProducts,
         currentPage: currPage,
         itemsPerPage: dataPerPage,
@@ -176,19 +199,19 @@ export default function Stock() {
                             <tr key={product.id} className="hover:bg-gray-50">
                                 <td className="px-3 py-2 text-sm text-gray-700">{product.name}</td>
                                 <td className="px-3 py-2 text-sm text-gray-700">{product.category}</td>
-                                <td className="px-3 py-2 text-sm text-gray-700">{product.stock.total}</td>
-                                <td className="px-3 py-2 text-sm text-gray-700">{product.stock.sold}</td>
-                                <td className="px-3 py-2 text-sm text-gray-700">{product.stock.remaining}</td>
+                                <td className="px-3 py-2 text-sm text-gray-700">{product.total}</td>
+                                <td className="px-3 py-2 text-sm text-gray-700">{product.sold}</td>
+                                <td className="px-3 py-2 text-sm text-gray-700">{product.remaining}</td>
                                 <td className="px-3 py-2 text-sm">
                                     <span
-                                        className={`px-2 py-1 rounded-full text-xs font-semibold ${computeStatus(product.stock.remaining) === "In Stock"
+                                        className={`px-2 py-1 rounded-full text-xs font-semibold ${computeStatus(product.remaining) === "In Stock"
                                             ? "bg-green-100 text-green-700"
-                                            : computeStatus(product.stock.remaining) === "Low Stock"
+                                            : computeStatus(product.remaining) === "Low Stock"
                                                 ? "bg-yellow-100 text-yellow-700"
                                                 : "bg-red-100 text-red-700"
                                             }`}
                                     >
-                                        {computeStatus(product.stock.remaining)}
+                                        {computeStatus(product.remaining)}
                                     </span>
                                 </td>
                             </tr>
