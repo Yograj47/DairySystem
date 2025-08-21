@@ -134,9 +134,9 @@
     {
       "id": "2",
       "productId": "p001",
-      "total": 0,
+      "total": 40,
       "sold": 0,
-      "remaining": 0,
+      "remaining": 40,
       "status": "In Stock",
       "date": "2025-08-20"
     },
@@ -170,7 +170,7 @@
     {
       "id": "6",
       "productId": "p005",
-      "total": 30,
+      "total": 0,
       "sold": 0,
       "remaining": 0,
       "status": "In Stock",
@@ -260,20 +260,12 @@
   ],
   "purchases": [
     {
-      "id": "ff88",
-      "supplierName": "Jack Dai",
-      "productId": "p004",
-      "quantity": 30,
-      "price": 280,
-      "date": "2025-08-20T00:00:00.000Z"
-    },
-    {
-      "id": "9345",
-      "supplierName": "Jack Dai",
-      "productId": "p005",
-      "quantity": 30,
-      "price": 480,
-      "date": "2025-08-20T00:00:00.000Z"
+      "id": "d6d8",
+      "supplierName": "James Bhai",
+      "productId": "p001",
+      "quantity": 40,
+      "price": 50,
+      "date": "2025-08-21T00:00:00.000Z"
     }
   ],
   "sales": []

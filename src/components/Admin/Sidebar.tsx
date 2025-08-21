@@ -33,7 +33,7 @@ function Sidebar({ isOpen }: SidebarProps) {
             path: "/inventory",
             subMenu: [
                 { name: "Stock", path: "/inventory/stock" },
-                { name: "Purchase", path: "/inventory/purchase" },
+                { name: "Add", path: "/inventory/add" },
                 { name: "Sale", path: "/inventory/sale" },
             ],
         },

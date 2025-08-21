@@ -99,6 +99,7 @@ export default function AddStock() {
                 await axios.put(`http://localhost:5000/stock/${stockItem.id}`, {
                     ...stockItem,
                     total: stockItem.total + data.quantity,
+                    remaining: stockItem.remaining + data.quantity - stockItem.sold
                 });
             }
 

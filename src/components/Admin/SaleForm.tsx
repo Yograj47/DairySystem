@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useFormContext, FormProvider } from "react-hook-form";
 import {
     TextField,
     Button,
@@ -7,43 +7,88 @@ import {
     FormControl,
     InputLabel,
     Select,
-    FormControlLabel,
-    RadioGroup,
-    Radio,
-    Paper,
-    Divider
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Delete } from "lucide-react";
 import type { IProduct } from "../../pages/Admin/Products/ProductList";
+
+interface IProductSchema {
+    name: string;
+    price: number;
+    qty: number;
+    unit: string;
+}
 
 interface ISaleForm {
     customerName: string;
-    productName: string;
-    mode: "quantity" | "amount";
-    quantity: number;
-    amountGiven: number;
+    product: IProductSchema[];
 }
 
+// Common dairy units used in Nepal
+const dairyUnits = ["kg", "ltr", "gm", "ml", "pcs"];
+
 export default function SaleForm() {
-    const { register, handleSubmit, reset, control, watch } = useForm<ISaleForm>({
-        defaultValues: { mode: "quantity" }
+    const methods = useForm<ISaleForm>({
+        defaultValues: {
+            customerName: "",
+            product: [{ name: "", qty: 0, unit: "ltr", price: 0 }],
+        }
+
     });
 
-    const mode = watch("mode");
-    const [submittedData, setSubmittedData] = useState<ISaleForm | null>(null);
+    const { handleSubmit, watch } = methods;
 
     const onSubmit = (data: ISaleForm) => {
         console.log("Submitted Data:", data);
-        setSubmittedData(data);
-        reset({ mode: "quantity" });
     };
+
+    console.log(watch());
+
+    return (
+        <div className="h-full w-full overflow-auto border-2 border-amber-300 p-4">
+            <FormProvider {...methods}>
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="w-full flex justify-center items-start flex-col gap-4"
+                >
+                    {/* Customer Name */}
+                    <TextField
+                        label="Customer Name"
+                        size="medium"
+                        {...methods.register("customerName")}
+                    />
+
+                    {/* Product List */}
+                    <AddProduct />
+
+                    {/* Submit Button */}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        sx={{ fontSize: "1.1rem", fontWeight: "semibold", mt: 2 }}
+                    >
+                        Proceed
+                    </Button>
+                </form>
+            </FormProvider>
+        </div >
+    );
+}
+
+function AddProduct() {
+    const { register, control } = useFormContext<ISaleForm>();
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "product",
+    });
 
     const [products, setProducts] = useState<IProduct[]>([]);
 
     useEffect(() => {
         async function fetchProduct() {
             try {
-                const response = await fetch("/Data/Products.json");
+                const response = await fetch("http://localhost:5000/products");
                 const data = await response.json();
                 setProducts(data);
             } catch (err) {
@@ -53,143 +98,93 @@ export default function SaleForm() {
         fetchProduct();
     }, []);
 
+
     return (
-        <div className="flex flex-col md:flex-row bg-white p-4 gap-6">
-            {/* Sale Form */}
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="w-full md:w-3/5 flex flex-col gap-4 p-4 md:p-6 bg-gray-50 rounded-lg shadow"
-            >
-                <Typography variant="h6" fontWeight="bold">New Sale</Typography>
+        <div className="flex flex-col items-start gap-y-4 gap-x-2">
+            <Typography variant="subtitle1" fontWeight="semibold" fontSize="1.4rem">
+                Products
+            </Typography>
 
-                {/* Customer Name */}
-                <TextField
-                    label="Customer Name"
-                    fullWidth
-                    {...register("customerName", { required: "Customer Name is required" })}
-                />
+            {fields.map((field, index) => (
+                <div key={field.id} className="ml-2 px-2 border-l-2 border-gray-500 rounded-xs
+                 grid grid-cols-12 gap-y-5 gap-x-3 items-center w-full">
+                    {/* Product Select */}
+                    <FormControl className="col-span-full md:col-span-5">
+                        <InputLabel sx={{ top: -4 }}>Product</InputLabel>
+                        <Controller
+                            control={control}
+                            name={`product.${index}.name` as const}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    label="Product"
+                                    size="small"
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                    }}
+                                >
+                                    {products.map((p) => (
+                                        <MenuItem key={p.name} value={p.name}>
+                                            {p.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                    </FormControl>
 
-                {/* Product Select */}
-                <FormControl fullWidth>
-                    <InputLabel id="product-label">Product</InputLabel>
-                    <Controller
-                        name="productName"
-                        control={control}
-                        render={({ field }) => (
-                            <Select {...field} labelId="product-label" label="Product">
-                                {products.map((p) => (
-                                    <MenuItem key={p.name} value={p.name}>
-                                        {p.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        )}
-                    />
-                </FormControl>
-
-                {/* Mode Select */}
-                <FormControl>
-                    <Typography variant="subtitle1" gutterBottom>
-                        Sale Mode
-                    </Typography>
-                    <Controller
-                        name="mode"
-                        control={control}
-                        render={({ field }) => (
-                            <RadioGroup row {...field}>
-                                <FormControlLabel
-                                    value="quantity"
-                                    control={<Radio />}
-                                    label="By Quantity"
-                                />
-                                <FormControlLabel
-                                    value="amount"
-                                    control={<Radio />}
-                                    label="By Amount"
-                                />
-                            </RadioGroup>
-                        )}
-                    />
-                </FormControl>
-
-                {/* Conditional Fields */}
-                {mode === "quantity" && (
+                    {/* Qty */}
                     <TextField
                         type="number"
-                        label="Quantity"
-                        fullWidth
-                        {...register("quantity", { valueAsNumber: true })}
+                        label="Qty"
+                        size="small"
+                        className="md:col-span-2 col-span-3"
+                        {...register(`product.${index}.qty` as const, { valueAsNumber: true })}
                     />
-                )}
 
-                {mode === "amount" && (
+                    {/* Unit */}
+                    <FormControl className="md:col-span-2 col-span-3">
+                        <InputLabel>Unit</InputLabel>
+                        <Select
+                            label="Unit"
+                            size="small"
+                            {...register(`product.${index}.unit` as const)}
+                            defaultValue={field.unit || ""}
+                        >
+                            {dairyUnits.map((unit) => (
+                                <MenuItem key={unit} value={unit}>
+                                    {unit}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {/* Price */}
                     <TextField
                         type="number"
-                        label="Amount Given"
-                        fullWidth
-                        {...register("amountGiven", { valueAsNumber: true })}
+                        label="Price"
+                        size="small"
+                        className="md:col-span-2 col-span-3"
+                        {...register(`product.${index}.price` as const, { valueAsNumber: true })}
                     />
-                )}
 
-                {/* Submit */}
-                <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    sx={{ py: 1.5, fontWeight: "bold" }}
-                >
-                    Proceed
-                </Button>
-            </form>
-
-            {/* Invoice Section */}
-            <Paper
-                elevation={3}
-                className="w-full md:w-2/5 p-4 md:p-6 bg-white rounded-lg shadow flex-shrink-0"
-            >
-                <div className="flex items-center justify-between mb-2">
-                    <Typography variant="h5" fontWeight="bold">
-                        Invoice
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                        {new Date().toLocaleDateString()}
-                    </Typography>
+                    {/* Delete Button */}
+                    <button
+                        className=" cursor-pointer hover:bg-red-200 rounded-full w-10 h-10 flex justify-center items-center"
+                        onClick={() => remove(index)}
+                    >
+                        <Delete className="text-red-600" />
+                    </button>
                 </div>
-                <Divider className="mb-4" />
+            ))}
 
-                {submittedData ? (
-                    <div className="space-y-2 text-sm">
-                        <p>
-                            <span className="font-semibold">Customer:</span>{" "}
-                            {submittedData.customerName}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Product:</span>{" "}
-                            {submittedData.productName}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Mode:</span>{" "}
-                            {submittedData.mode === "quantity" ? "By Quantity" : "By Amount"}
-                        </p>
-                        {submittedData.mode === "quantity" && (
-                            <p>
-                                <span className="font-semibold">Quantity:</span>{" "}
-                                {submittedData.quantity}
-                            </p>
-                        )}
-                        {submittedData.mode === "amount" && (
-                            <p>
-                                <span className="font-semibold">Amount Given:</span>{" "}
-                                Rs {submittedData.amountGiven}
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    <Typography variant="body2" color="textSecondary">
-                        No sale submitted yet.
-                    </Typography>
-                )}
-            </Paper>
+            {/* Add Product Button */}
+            <Button
+                variant="outlined"
+                onClick={() => append({ name: "", qty: 0, unit: "ltr", price: 0 })}
+            >
+                Add Product
+            </Button>
         </div>
     );
 }

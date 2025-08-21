@@ -8,9 +8,9 @@ import { Route, Routes } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
 import CreateProduct from "./pages/Admin/Products/CreateProduct";
 import Stock from "./pages/Admin/Inventory/Stock";
-import Purchase from "./pages/Admin/Inventory/AddStock";
 import Sale from "./pages/Admin/Inventory/Sale";
 import Report from "./pages/Admin/Report";
+import AddStock from "./pages/Admin/Inventory/AddStock";
 
 function App() {
   const [isOpen, setIsOpen] = useState<boolean>(true);
@@ -60,7 +60,7 @@ function App() {
 
             {/* Inventory Route */}
             <Route path="/inventory/stock" element={<Stock />} />
-            <Route path="/inventory/purchase" element={<Purchase />} />
+            <Route path="/inventory/add" element={<AddStock />} />
             <Route path="/inventory/sale" element={<Sale />} />
 
             {/* Report Route */}
