@@ -3,23 +3,9 @@ import { useEffect, useState } from "react";
 import { paginate } from "../../../utils/Pagination";
 import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
 import axios from "axios";
-import type { IProduct } from "../Products/ProductList";
+import type { IOverview, IStock } from "../../../utils/interface/Stock";
+import type { IProduct } from "../../../utils/interface/Product";
 
-export interface IStock extends IProduct {
-    id: string;
-    productId: string;
-    total: number;
-    sold: number;
-    remaining: number;
-    status: string;
-}
-
-interface IOverview {
-    lowStockCount: number;
-    outOfStockCount: number;
-    totalProducts: number;
-    totalStockValue: number;
-}
 
 export default function Stock() {
     const [stocks, setStocks] = useState<IStock[]>([]);
@@ -53,7 +39,6 @@ export default function Stock() {
             category: product ? product.category : ""
         }
     })
-
 
     const overview: IOverview = {
         totalProducts: StockData.length,
@@ -114,7 +99,7 @@ export default function Stock() {
             setSortState(nextState);
         } else {
             setSortKey(key);
-            setSortState("desc"); // first click after default
+            setSortState("desc");
         }
     };
 

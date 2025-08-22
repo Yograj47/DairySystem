@@ -1,39 +1,18 @@
 import { Delete, Edit } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { paginate } from "../../../utils/Pagination";
-import axios from 'axios'
-
-export interface IProduct {
-    id: string;
-    name: string;
-    category: string;
-    saleRate: number;
-    purchaseRate: number;
-    unit: string;
-}
+import { useProduct } from "../../../components/hook/ProductList";
+import type { IProduct } from "../../../utils/interface/Product";
 
 function ProductList() {
     const [search, setSearch] = useState<string>("");
     const [currPage, setCurrentPage] = useState(1);
     const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [products, setProducts] = useState<IProduct[]>([]);
+    const { products, isLoading } = useProduct()
 
     const dataPerPage = 12;
-
-    useEffect(() => {
-        async function fetchProduct() {
-            try {
-                const response = await axios.get("http://localhost:5000/products");
-                setProducts(response.data);
-
-            } catch (err) {
-                console.error("Error fetching products:", err);
-            }
-        }
-        fetchProduct();
-    }, []);
 
     const filteredProducts = products.filter(
         (product) =>
@@ -46,6 +25,10 @@ function ProductList() {
         currentPage: currPage,
         itemsPerPage: dataPerPage,
     });
+
+    if (isLoading) {
+        return <>Loading...</>
+    }
 
     return (
         <div className="h-full w-full bg-white p-4 shadow-md flex flex-col">

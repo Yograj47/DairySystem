@@ -28,7 +28,7 @@ const ProductSchema = z.object({
 type ProductData = z.infer<typeof ProductSchema>;
 
 function CreateProduct() {
-    const { id } = useParams();
+    const { id: productId } = useParams();
 
     const {
         handleSubmit,
@@ -47,22 +47,33 @@ function CreateProduct() {
     });
 
     useEffect(() => {
-        if (id) {
+        if (productId) {
             axios
-                .get(`http://localhost:5000/products/${id}`)
+                .get(`http://localhost:5000/products/${productId}`)
                 .then((res) => reset(res.data))
                 .catch((err) => console.error("Failed to fetch product:", err));
         }
-    }, [id, reset]);
+    }, [productId, reset]);
 
     const onSubmit = async (data: ProductData) => {
         try {
-            const response = !id
+            const response = !productId
                 ? await axios.post("http://localhost:5000/products", data)
-                : await axios.patch(`http://localhost:5000/products/${id}`, data);
+                : await axios.patch(`http://localhost:5000/products/${productId}`, data);
 
             console.log("Response:", response.data);
-            alert(!id ? "Edited Successfully" : "Added Successfully")
+            const { id } = response.data
+            const stockData = {
+                productId: id,
+                total: 0,
+                sold: 0,
+                remaining: 0,
+                status: "out of stock"
+            }
+
+            await axios.post("http://localhost:5000/stock", stockData)
+
+            alert(productId ? "Edited Successfully" : "Added Successfully")
             if (!id) reset();
         } catch (error) {
             console.error("Error saving product:", error);
@@ -77,7 +88,7 @@ function CreateProduct() {
                         variant="h5"
                         sx={{ fontWeight: "bold", margin: ".5rem 0 1rem" }}
                     >
-                        {!id ? "Create Product" : "Edit Product"}
+                        {!productId ? "Create Product" : "Edit Product"}
                     </Typography>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -106,13 +117,12 @@ function CreateProduct() {
                                 render={({ field }) => (
                                     <TextField
                                         {...field}
-                                        label="Purchase Rate"
+                                        label="Purchase"
                                         type="number"
                                         placeholder="eg. 100"
                                         error={!!errors.purchaseRate}
                                         helperText={errors.purchaseRate?.message}
                                         fullWidth
-                                        InputLabelProps={{ shrink: !!field.value }}
                                     />
                                 )}
                             />
@@ -149,7 +159,6 @@ function CreateProduct() {
                                     error={!!errors.saleRate}
                                     helperText={errors.saleRate?.message}
                                     fullWidth
-                                    InputLabelProps={{ shrink: !!field.value }}
                                 />
                             )}
                         />

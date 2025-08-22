@@ -1,4 +1,4 @@
-import SaleForm from "../../../components/Admin/SaleForm";
+import SaleForm from "../../../components/Admin/Product/SaleForm";
 function Sale() {
 
     return (

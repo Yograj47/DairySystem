@@ -12,11 +12,11 @@ import {
 } from "@mui/material";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useEffect, useState } from "react";
-import type { IProduct } from "../Products/ProductList";
 import axios from "axios";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { IStock } from "./Stock";
+import type { IProduct } from "../../../utils/interface/Product";
+import type { IStock } from "../../../utils/interface/Stock";
 
 // Validation Schema
 const AddStockSchema = z.object({
@@ -77,7 +77,7 @@ export default function AddStock() {
         if (productId) {
             const selected = products.find((p) => p.id === productId);
             if (selected) {
-                setValue("price", selected.saleRate);
+                setValue("price", selected.purchaseRate);
                 setUnit(selected.unit);
             }
         } else {
@@ -180,7 +180,6 @@ export default function AddStock() {
                     type="date"
                     fullWidth
                     {...register("date")}
-                    InputLabelProps={{ shrink: true }}
                     error={!!errors.date}
                     helperText={errors.date?.message?.toString()}
                 />
