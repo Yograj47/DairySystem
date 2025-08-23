@@ -15,8 +15,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { IProduct } from "../../../utils/interface/Product";
-import type { IStock } from "../../../utils/interface/Stock";
 import { useProduct } from "../../../components/hook/ProductFetch";
 import { useStock } from "../../../components/hook/StockFetch";
 
