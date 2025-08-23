@@ -17,6 +17,8 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { IProduct } from "../../../utils/interface/Product";
 import type { IStock } from "../../../utils/interface/Stock";
+import { useProduct } from "../../../components/hook/ProductFetch";
+import { useStock } from "../../../components/hook/StockFetch";
 
 // Validation Schema
 const AddStockSchema = z.object({
@@ -51,23 +53,12 @@ export default function AddStock() {
 
     const [unit, setUnit] = useState<string>();
     const [invoiceData, setInvoiceData] = useState<IAddStock | null>(null);
-    const [products, setProducts] = useState<IProduct[]>([]);
-    const [stock, setStock] = useState<IStock[]>([]);
+    const { data: products } = useProduct()
+    const { data: stock } = useStock()
 
-    // Fetch products
-    useEffect(() => {
-        async function fetchProduct() {
-            try {
-                const response = await axios.get("http://localhost:5000/products");
-                const response1 = await axios.get("http://localhost:5000/stock");
-                setProducts(response.data);
-                setStock(response1.data);
-            } catch (err) {
-                console.error("Error fetching products:", err);
-            }
-        }
-        fetchProduct();
-    }, []);
+    const productData = products ? products : []
+    const stockData = stock ? stock : []
+
 
     // Watch productId instead of productName
     const productId = watch("productId");
@@ -75,7 +66,7 @@ export default function AddStock() {
     // Update price & unit when product changes
     useEffect(() => {
         if (productId) {
-            const selected = products.find((p) => p.id === productId);
+            const selected = productData.find((p) => p.id === productId);
             if (selected) {
                 setValue("price", selected.purchaseRate);
                 setUnit(selected.unit);
@@ -84,11 +75,11 @@ export default function AddStock() {
             setValue("price", 0);
             setUnit(undefined);
         }
-    }, [productId, products, setValue]);
+    }, [productId, productData, setValue]);
 
     // Submit handler
     const onSubmit = async (data: IAddStock) => {
-        const stockItem = stock.find(s => s.productId === productId);
+        const stockItem = stockData.find(s => s.productId === productId);
 
         try {
             // 1. Save purchase record
@@ -114,7 +105,7 @@ export default function AddStock() {
     };
 
     // Get selected product for invoice
-    const selectedProduct = products.find((p) => p.id === invoiceData?.productId);
+    const selectedProduct = productData.find((p) => p.id === invoiceData?.productId);
 
     return (
         <div className="p-6 h-full w-full bg-gray-100 flex justify-start items-start flex-wrap md:justify-center gap-6">
@@ -140,7 +131,7 @@ export default function AddStock() {
                         control={control}
                         render={({ field }) => (
                             <Select {...field} labelId="product-label" label="Product">
-                                {products.map((p) => (
+                                {productData.map((p) => (
                                     <MenuItem key={p.id} value={p.id}>
                                         {p.name}
                                     </MenuItem>

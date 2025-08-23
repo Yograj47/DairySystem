@@ -1,6 +1,5 @@
 import {
     Box,
-    Card,
     CardContent,
     TextField,
     MenuItem,
@@ -9,13 +8,16 @@ import {
     FormControl,
     Button,
     Typography,
+    Divider,
+    Card,
 } from "@mui/material";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useDarkMode } from "../../../components/context/DarkMode";
 
 const ProductSchema = z.object({
     name: z.string().min(3, { message: "Product name is required" }),
@@ -29,6 +31,8 @@ type ProductData = z.infer<typeof ProductSchema>;
 
 function CreateProduct() {
     const { id: productId } = useParams();
+    const { isDark } = useDarkMode();
+    const [previewData, setPreviewData] = useState<ProductData | null>(null);
 
     const {
         handleSubmit,
@@ -55,146 +59,328 @@ function CreateProduct() {
         }
     }, [productId, reset]);
 
-    const onSubmit = async (data: ProductData) => {
+    // Show invoice preview instead of saving immediately
+    const onSubmit = (data: ProductData) => {
+        setPreviewData(data);
+    };
+
+    // Confirm save
+    const handleConfirm = async () => {
+        if (!previewData) return;
         try {
             const response = !productId
-                ? await axios.post("http://localhost:5000/products", data)
-                : await axios.patch(`http://localhost:5000/products/${productId}`, data);
+                ? await axios.post("http://localhost:5000/products", previewData)
+                : await axios.patch(
+                    `http://localhost:5000/products/${productId}`,
+                    previewData
+                );
 
             console.log("Response:", response.data);
-            const { id } = response.data
-            const stockData = {
-                productId: id,
-                total: 0,
-                sold: 0,
-                remaining: 0,
-                status: "out of stock"
+
+            if (!productId) {
+                const { id } = response.data;
+                await axios.post("http://localhost:5000/stock", {
+                    productId: id,
+                    total: 0,
+                    sold: 0,
+                    remaining: 0,
+                    status: "out of stock",
+                });
             }
 
-            await axios.post("http://localhost:5000/stock", stockData)
-
-            alert(productId ? "Edited Successfully" : "Added Successfully")
-            if (!id) reset();
+            alert(productId ? "Edited Successfully" : "Added Successfully");
+            reset();
+            setPreviewData(null);
         } catch (error) {
             console.error("Error saving product:", error);
         }
     };
 
     return (
-        <Box className="h-full w-full flex justify-center items-start p-4">
-            <Card className="w-full max-w-lg">
+        <Box
+            className={`h-full w-full flex justify-center items-start p-4 bg-transparent text-black"
+                }`}
+        >
+            <div
+                className={`w-full max-w-lg shadow-md ${isDark ? "bg-[#24303f] text-white" : "bg-white text-black"
+                    }`}
+            >
                 <CardContent>
-                    <Typography
-                        variant="h5"
-                        sx={{ fontWeight: "bold", margin: ".5rem 0 1rem" }}
-                    >
-                        {!productId ? "Create Product" : "Edit Product"}
-                    </Typography>
+                    {!previewData ? (
+                        <>
+                            <Typography
+                                variant="h5"
+                                sx={{ fontWeight: "bold", margin: ".5rem 0 1rem" }}
+                            >
+                                {!productId ? "Create Product" : "Edit Product"}
+                            </Typography>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                        {/* Product Name */}
-                        <Controller
-                            name="name"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    label="Product Name"
-                                    placeholder="Butter Milk"
-                                    error={!!errors.name}
-                                    helperText={errors.name?.message}
-                                    fullWidth
-                                    InputLabelProps={{ shrink: !!field.value }}
-                                />
-                            )}
-                        />
-
-                        {/* Purchase Rate + Unit */}
-                        <Box className="flex gap-4 items-center">
-                            <Controller
-                                name="purchaseRate"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        {...field}
-                                        label="Purchase"
-                                        type="number"
-                                        placeholder="eg. 100"
-                                        error={!!errors.purchaseRate}
-                                        helperText={errors.purchaseRate?.message}
-                                        fullWidth
-                                    />
-                                )}
-                            />
-
-                            <Typography variant="body1">Per</Typography>
-
-                            <FormControl fullWidth error={!!errors.unit}>
-                                <InputLabel id="unit-label">Unit</InputLabel>
+                            <form
+                                onSubmit={handleSubmit(onSubmit)}
+                                className="flex flex-col gap-4"
+                            >
+                                {/* Product Name */}
                                 <Controller
-                                    name="unit"
+                                    name="name"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select {...field} labelId="unit-label" label="Unit">
-                                            <MenuItem value="ltr">Litre</MenuItem>
-                                            <MenuItem value="kg">Kg</MenuItem>
-                                            <MenuItem value="piece">Piece</MenuItem>
-                                            <MenuItem value="packet">Packet</MenuItem>
-                                        </Select>
+                                        <TextField
+                                            {...field}
+                                            label="Product Name"
+                                            placeholder="Butter Milk"
+                                            error={!!errors.name}
+                                            helperText={errors.name?.message}
+                                            fullWidth
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: isDark ? "white" : "gray",
+                                                },
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": {
+                                                        borderColor: isDark ? "#555" : "#ccc",
+                                                    },
+                                                    "&:hover fieldset": {
+                                                        borderColor: isDark ? "#888" : "#666",
+                                                    },
+                                                    "&.Mui-focused fieldset": {
+                                                        borderColor: isDark ? "#90caf9" : "#1976d2",
+                                                    },
+                                                },
+                                                "& .MuiFormHelperText-root": {
+                                                    color: isDark ? "#f87171" : "#d32f2f", // error text
+                                                },
+                                            }}
+                                        />
                                     )}
                                 />
-                            </FormControl>
-                        </Box>
 
-                        {/* Sale Rate */}
-                        <Controller
-                            name="saleRate"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    label="Sale Rate"
-                                    type="number"
-                                    placeholder="eg. 150"
-                                    error={!!errors.saleRate}
-                                    helperText={errors.saleRate?.message}
-                                    fullWidth
+                                {/* Purchase Rate + Unit */}
+                                <Box className="flex gap-4 items-center">
+                                    <Controller
+                                        name="purchaseRate"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <TextField
+                                                {...field}
+                                                label="Purchase Rate"
+                                                type="number"
+                                                placeholder="eg. 100"
+                                                error={!!errors.purchaseRate}
+                                                helperText={errors.purchaseRate?.message}
+                                                fullWidth
+                                                sx={{
+                                                    "& .MuiInputBase-input": {
+                                                        color: isDark ? "white" : "black",
+                                                    },
+                                                    "& .MuiInputLabel-root": {
+                                                        color: isDark ? "white" : "gray",
+                                                    },
+                                                    "& .MuiOutlinedInput-root fieldset": {
+                                                        borderColor: isDark ? "#555" : "#ccc",
+                                                    },
+                                                }}
+                                            />
+                                        )}
+                                    />
+
+                                    <Typography
+                                        variant="body1"
+                                        sx={{ color: isDark ? "white" : "black" }}
+                                    >
+                                        Per
+                                    </Typography>
+
+                                    <FormControl
+                                        fullWidth
+                                        error={!!errors.unit}
+                                        sx={{
+                                            "& .MuiInputLabel-root": {
+                                                color: isDark ? "white" : "gray",
+                                            },
+                                            "& .MuiOutlinedInput-root .MuiSelect-select": {
+                                                color: isDark ? "white" : "black",
+                                            },
+                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                borderColor: isDark ? "#555" : "#ccc",
+                                            },
+                                            "& .MuiSvgIcon-root": {
+                                                color: isDark ? "#fff" : "#ccc",
+                                            },
+                                        }}
+                                    >
+                                        <InputLabel id="unit-label">Unit</InputLabel>
+                                        <Controller
+                                            name="unit"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select {...field} label="Unit" labelId="unit-label">
+                                                    <MenuItem value="ltr">Litre</MenuItem>
+                                                    <MenuItem value="kg">Kg</MenuItem>
+                                                    <MenuItem value="piece">Piece</MenuItem>
+                                                    <MenuItem value="packet">Packet</MenuItem>
+                                                </Select>
+                                            )}
+                                        />
+                                    </FormControl>
+                                </Box>
+
+                                {/* Sale Rate */}
+                                <Controller
+                                    name="saleRate"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Sale Rate"
+                                            type="number"
+                                            placeholder="eg. 150"
+                                            error={!!errors.saleRate}
+                                            helperText={errors.saleRate?.message}
+                                            fullWidth
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: isDark ? "white" : "gray",
+                                                },
+                                                "& .MuiOutlinedInput-root fieldset": {
+                                                    borderColor: isDark ? "#555" : "#ccc",
+                                                },
+                                            }}
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
 
-                        {/* Category */}
-                        <FormControl fullWidth error={!!errors.category}>
-                            <InputLabel id="category-label">Category</InputLabel>
-                            <Controller
-                                name="category"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select {...field} labelId="category-label" label="Category">
-                                        <MenuItem value="Milk">Milk</MenuItem>
-                                        <MenuItem value="Cheese">Cheese</MenuItem>
-                                        <MenuItem value="Yogurt">Yogurt</MenuItem>
-                                        <MenuItem value="Butter">Butter</MenuItem>
-                                        <MenuItem value="Bread">Bread</MenuItem>
-                                        <MenuItem value="Cake">Cake</MenuItem>
-                                        <MenuItem value="Ice Cream">Ice Cream</MenuItem>
-                                    </Select>
-                                )}
-                            />
-                        </FormControl>
+                                {/* Category */}
+                                <FormControl
+                                    fullWidth
+                                    error={!!errors.category}
+                                    sx={{
+                                        "& .MuiInputLabel-root": {
+                                            color: isDark ? "white" : "gray",
+                                        },
+                                        "& .MuiOutlinedInput-root .MuiSelect-select": {
+                                            color: isDark ? "white" : "black",
+                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: isDark ? "#555" : "#ccc",
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: isDark ? "#fff" : "#ccc",
+                                        },
+                                    }}
+                                >
+                                    <InputLabel id="category-label">Category</InputLabel>
+                                    <Controller
+                                        name="category"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select {...field} label="Category" labelId="category-label">
+                                                <MenuItem value="Milk">Milk</MenuItem>
+                                                <MenuItem value="Cheese">Cheese</MenuItem>
+                                                <MenuItem value="Yogurt">Yogurt</MenuItem>
+                                                <MenuItem value="Butter">Butter</MenuItem>
+                                                <MenuItem value="Bread">Bread</MenuItem>
+                                                <MenuItem value="Cake">Cake</MenuItem>
+                                                <MenuItem value="Ice Cream">Ice Cream</MenuItem>
+                                            </Select>
+                                        )}
+                                    />
+                                </FormControl>
 
-                        {/* Submit */}
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? "Uploading..." : "Save Product"}
-                        </Button>
-                    </form>
+                                {/* Submit */}
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={isSubmitting}
+                                    sx={{
+                                        backgroundColor: isDark ? "#2563eb" : undefined,
+                                        "&:hover": {
+                                            backgroundColor: isDark ? "#1d4ed8" : undefined,
+                                        },
+                                    }}
+                                >
+                                    {isSubmitting ? "Preparing..." : "Preview Invoice"}
+                                </Button>
+                            </form>
+                        </>
+                    ) : (
+                        <>
+                            {/* Invoice Preview */}
+                            <Card
+                                sx={{
+                                    p: 3,
+                                    backgroundColor: isDark ? "#1e293b" : "#f9fafb",
+                                    color: isDark ? "white" : "black",
+                                    border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                                    borderRadius: 2,
+                                    boxShadow: "sm",
+                                }}
+                            >
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        fontWeight: "bold",
+                                        mb: 2,
+                                        borderBottom: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                                        pb: 1,
+                                    }}
+                                >
+                                    Invoice Preview
+                                </Typography>
+
+                                <Box className="space-y-2 text-sm">
+                                    <Box className="flex justify-between">
+                                        <Typography fontWeight="500">Name:</Typography>
+                                        <Typography>{previewData.name}</Typography>
+                                    </Box>
+
+                                    <Box className="flex justify-between">
+                                        <Typography fontWeight="500">Purchase Rate:</Typography>
+                                        <Typography>
+                                            {previewData.purchaseRate} / {previewData.unit}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box className="flex justify-between">
+                                        <Typography fontWeight="500">Sale Rate:</Typography>
+                                        <Typography>
+                                            {previewData.saleRate} / {previewData.unit}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box className="flex justify-between">
+                                        <Typography fontWeight="500">Category:</Typography>
+                                        <Typography>{previewData.category}</Typography>
+                                    </Box>
+                                </Box>
+
+                                <Box className="flex gap-3 mt-4 justify-end">
+                                    <Button
+                                        variant="outlined"
+                                        color="inherit"
+                                        onClick={() => setPreviewData(null)}
+                                    >
+                                        Back to Edit
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleConfirm}
+                                    >
+                                        {productId ? "Confirm Update" : "Confirm Create"}
+                                    </Button>
+                                </Box>
+                            </Card>
+                        </>
+                    )}
                 </CardContent>
-            </Card>
+            </div>
         </Box>
     );
 }

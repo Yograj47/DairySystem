@@ -5,15 +5,16 @@ import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-reac
 import axios from "axios";
 import type { IOverview, IStock } from "../../../utils/interface/Stock";
 import type { IProduct } from "../../../utils/interface/Product";
+import { useProduct } from "../../../components/hook/ProductFetch";
 
 
 export default function Stock() {
     const [stocks, setStocks] = useState<IStock[]>([]);
-    const [products, setProducts] = useState<IProduct[]>([]);
     const [search, setSearch] = useState("");
     const [currPage, setCurrPage] = useState(1);
     const [sortKey, setSortKey] = useState<"name" | "category" | "remaining">("name");
     const [sortState, setSortState] = useState<"default" | "asc" | "desc">("default");
+    const { data: products, isLoading } = useProduct()
 
     const dataPerPage = 10;
 
@@ -21,9 +22,7 @@ export default function Stock() {
         async function fetchData() {
             try {
                 const res = await axios.get("http://localhost:5000/stock");
-                const res1 = await axios.get("http://localhost:5000/products");
                 setStocks(res.data);
-                setProducts(res1.data)
             } catch (err) {
                 console.error("Error fetching data:", err);
             }
@@ -31,8 +30,11 @@ export default function Stock() {
         fetchData();
     }, []);
 
+    const productData: IProduct[] = products ? products : []
+
     const StockData = stocks.map((s) => {
-        const product = products.find(p => s.productId === p.id);
+        const product = productData.find(p => s.productId === p.id);
+
         return {
             ...s,
             name: product ? product.name : "",
@@ -45,7 +47,7 @@ export default function Stock() {
         lowStockCount: StockData.filter(s => s.remaining > 0 && s.remaining < 20).length,
         outOfStockCount: StockData.filter(s => s.remaining === 0).length,
         totalStockValue: StockData.reduce((acc, s) => {
-            const product = products.find(p => p.id === s.productId);
+            const product = productData.find(p => p.id === s.productId);
             return acc + (product ? product.purchaseRate * s.total : 0);
         }, 0)
     }
@@ -108,6 +110,10 @@ export default function Stock() {
         if (sortState === "desc") return <ArrowDownWideNarrow className="w-4 h-4" />;
         return <ArrowUpWideNarrow className="w-4 h-4" />;
     };
+
+    if (isLoading) {
+        return <>Loading ...</>
+    }
 
     return (
         <div className="h-full w-full bg-white p-4 shadow-md flex flex-col">

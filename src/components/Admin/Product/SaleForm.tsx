@@ -1,281 +1,265 @@
-import {
-    Controller,
-    useFieldArray,
-    useForm,
-    useFormContext,
-    FormProvider,
-    useWatch,
-} from "react-hook-form";
-import {
-    TextField,
-    Button,
-    MenuItem,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    IconButton,
-} from "@mui/material";
-import { Delete } from "lucide-react";
-import { useProduct } from "../../hook/ProductList";
-import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
-import type { IStock } from "../../../utils/interface/Stock";
+// import {
+//     Controller,
+//     useFieldArray,
+//     useForm,
+//     useFormContext,
+//     FormProvider,
+//     useWatch,
+// } from "react-hook-form";
+// import {
+//     TextField,
+//     Button,
+//     MenuItem,
+//     Typography,
+//     FormControl,
+//     InputLabel,
+//     Select,
+//     IconButton,
+// } from "@mui/material";
+// import { Delete } from "lucide-react";
+// import { useProduct } from "../../hook/ProductList";
+// import axios from "axios";
+// import { useEffect, useMemo, useState } from "react";
+// import type { IStock } from "../../../utils/interface/Stock";
+// import type { ISaleForm } from "../../../utils/interface/Sale";
 
-interface IProductSchema {
-    productId: string;
-    name: string;
-    rate: number;   // rate per 1 base unit (kg/ltr/piece/packet)
-    price: number;  // computed price
-    qty: number;    // entered in selected unit
-    unit: string;   // 'kg'|'gm'|'ltr'|'ml'|'piece'|'packet'|'' ('' until product chosen)
-}
+// export default function SaleForm() {
+//     const [stock, setStock] = useState<IStock[]>([]);
+//     const { products } = useProduct();
 
-interface ISaleForm {
-    customerName: string;
-    product: IProductSchema[];
-}
+//     const methods = useForm<ISaleForm>({
+//         defaultValues: {
+//             customerName: "",
+//             product: [
+//                 { productId: "", name: "", qty: 0, unit: "", rate: 0, price: 0 },
+//             ],
+//         },
+//     });
 
-export default function SaleForm() {
-    const [stock, setStock] = useState<IStock[]>([]);
-    const { products } = useProduct(); // used on submit to convert qty if you want
+//     useEffect(() => {
+//         async function fetchStock() {
+//             const response = await axios.get(`http://localhost:5000/stock/`);
+//             setStock(response.data);
+//         }
+//         fetchStock();
+//     }, []);
 
-    const methods = useForm<ISaleForm>({
-        defaultValues: {
-            customerName: "",
-            product: [
-                { productId: "", name: "", qty: 0, unit: "", rate: 0, price: 0 },
-            ],
-        },
-    });
+//     const { handleSubmit, reset } = methods;
 
-    useEffect(() => {
-        async function fetchStock() {
-            const response = await axios.get(`http://localhost:5000/stock/`);
-            setStock(response.data);
-        }
-        fetchStock();
-    }, []);
+//     const toBaseQty = (qty: number, unit: string, baseUnit: string) => {
+//         if (!qty || !baseUnit) return 0;
+//         if (baseUnit === "kg") return unit === "gm" ? qty / 1000 : qty;
+//         if (baseUnit === "ltr") return unit === "ml" ? qty / 1000 : qty;
+//         return qty;
+//     };
 
-    const { handleSubmit, reset } = methods;
+//     const onSubmit = async (data: ISaleForm) => {
+//         await axios.post("http://localhost:5000/sales", data);
 
-    // Helper to convert to base quantity for stock updates (optional)
-    const toBaseQty = (qty: number, unit: string, baseUnit: string) => {
-        if (!qty || !baseUnit) return 0;
-        if (baseUnit === "kg") return unit === "gm" ? qty / 1000 : qty;        // kg or gm
-        if (baseUnit === "ltr") return unit === "ml" ? qty / 1000 : qty;       // ltr or ml
-        // piece or packet
-        return qty; // must match base exactly
-    };
+//         // safer stock update using base units
+//         for (const item of data.product) {
+//             const p = products.find((pp: any) => pp.id === item.productId);
+//             const stockItem = stock.find((s) => s.productId === item.productId);
+//             if (!stockItem || !p) continue;
 
-    const onSubmit = async (data: ISaleForm) => {
-        await axios.post("http://localhost:5000/sales", data);
+//             const baseUnit = p.unit; // 'kg'|'ltr'|'piece'|'packet'
+//             const baseQty = toBaseQty(item.qty, item.unit, baseUnit);
 
-        // OPTIONAL: safer stock update using base units
-        for (const item of data.product) {
-            const p = products.find((pp: any) => pp.id === item.productId);
-            const stockItem = stock.find((s) => s.productId === item.productId);
-            if (!stockItem || !p) continue;
+//             await axios.put(`http://localhost:5000/stock/${stockItem.id}`, {
+//                 ...stockItem,
+//                 remaining: (stockItem.remaining ?? 0) - baseQty,
+//                 sold: (stockItem.sold ?? 0) + baseQty,
+//             });
+//         }
 
-            const baseUnit = p.unit; // 'kg'|'ltr'|'piece'|'packet'
-            const baseQty = toBaseQty(item.qty, item.unit, baseUnit);
+//         reset();
+//     };
 
-            await axios.put(`http://localhost:5000/stock/${stockItem.id}`, {
-                ...stockItem,
-                remaining: (stockItem.remaining ?? 0) - baseQty,
-                sold: (stockItem.sold ?? 0) + baseQty,
-            });
-        }
+//     return (
+//         <div className="h-full w-full overflow-auto bg-white shadow-xs shadow-blue-500 p-4">
+//             <FormProvider {...methods}>
+//                 <form
+//                     onSubmit={handleSubmit(onSubmit)}
+//                     className="w-full flex flex-col gap-4"
+//                 >
+//                     <TextField
+//                         label="Customer Name"
+//                         size="medium"
+//                         {...methods.register("customerName")}
+//                     />
 
-        reset();
-    };
+//                     <AddProduct />
 
-    return (
-        <div className="h-full w-full overflow-auto bg-white shadow-xs shadow-blue-500 p-4">
-            <FormProvider {...methods}>
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="w-full flex flex-col gap-4"
-                >
-                    <TextField
-                        label="Customer Name"
-                        size="medium"
-                        {...methods.register("customerName")}
-                    />
+//                     <Button
+//                         type="submit"
+//                         variant="contained"
+//                         color="primary"
+//                         sx={{ fontSize: "1.1rem", fontWeight: "semibold", mt: 2 }}
+//                     >
+//                         Proceed
+//                     </Button>
+//                 </form>
+//             </FormProvider>
+//         </div>
+//     );
+// }
 
-                    <AddProduct />
+// /* ----------------- AddProduct & Row ----------------- */
 
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        sx={{ fontSize: "1.1rem", fontWeight: "semibold", mt: 2 }}
-                    >
-                        Proceed
-                    </Button>
-                </form>
-            </FormProvider>
-        </div>
-    );
-}
+// function AddProduct() {
+//     const { control } = useFormContext<ISaleForm>();
+//     const { fields, append, remove } = useFieldArray({ control, name: "product" });
 
-/* ----------------- AddProduct & Row ----------------- */
+//     return (
+//         <div className="flex flex-col items-start gap-4">
+//             <Typography variant="subtitle1" fontWeight="semibold" fontSize="1.4rem">
+//                 Products
+//             </Typography>
 
-function AddProduct() {
-    const { control } = useFormContext<ISaleForm>();
-    const { fields, append, remove } = useFieldArray({ control, name: "product" });
+//             {fields.map((field, index) => (
+//                 <LineItemRow key={field.id} index={index} onRemove={() => remove(index)} />
+//             ))}
 
-    return (
-        <div className="flex flex-col items-start gap-4">
-            <Typography variant="subtitle1" fontWeight="semibold" fontSize="1.4rem">
-                Products
-            </Typography>
+//             <Button
+//                 type="button"
+//                 variant="outlined"
+//                 onClick={() =>
+//                     append({ productId: "", name: "", qty: 0, unit: "", rate: 0, price: 0 })
+//                 }
+//             >
+//                 Add Product
+//             </Button>
+//         </div>
+//     );
+// }
 
-            {fields.map((field, index) => (
-                <LineItemRow key={field.id} index={index} onRemove={() => remove(index)} />
-            ))}
+// function LineItemRow({ index, onRemove }: { index: number; onRemove: () => void }) {
+//     const { control, setValue, register } = useFormContext<ISaleForm>();
+//     const { products } = useProduct();
 
-            <Button
-                type="button"
-                variant="outlined"
-                onClick={() =>
-                    append({ productId: "", name: "", qty: 0, unit: "", rate: 0, price: 0 })
-                }
-            >
-                Add Product
-            </Button>
-        </div>
-    );
-}
+//     // Watch only this line’s fields
+//     const item = useWatch({ control, name: `product.${index}` });
 
-function LineItemRow({ index, onRemove }: { index: number; onRemove: () => void }) {
-    const { control, setValue, register } = useFormContext<ISaleForm>();
-    const { products } = useProduct();
+//     // Get selected product object
+//     const selectedProduct = useMemo(
+//         () => products.find((p: any) => p.id === item?.productId),
+//         [products, item?.productId]
+//     );
 
-    // Watch only this line’s fields
-    const item = useWatch({ control, name: `product.${index}` });
+//     // Allowed units derived from the product’s base unit
+//     const baseUnit: string | undefined = selectedProduct?.unit; // 'kg'|'ltr'|'piece'|'packet'
+//     const allowedUnits = useMemo(() => {
+//         if (!baseUnit) return [];
+//         if (baseUnit === "kg") return ["kg", "gm"];
+//         if (baseUnit === "ltr") return ["ltr", "ml"];
+//         if (baseUnit === "piece") return ["piece"];
+//         if (baseUnit === "packet") return ["packet"];
+//         return [];
+//     }, [baseUnit]);
 
-    // Get selected product object
-    const selectedProduct = useMemo(
-        () => products.find((p: any) => p.id === item?.productId),
-        [products, item?.productId]
-    );
+//     const computePrice = (rate: number, qty: number, unit: string, base: string | undefined) => {
+//         if (!rate || !qty || !unit || !base) return 0;
+//         // invalid unit → do not calculate
+//         if (!allowedUnits.includes(unit)) return 0;
 
-    // Allowed units derived from the product’s base unit
-    const baseUnit: string | undefined = selectedProduct?.unit; // 'kg'|'ltr'|'piece'|'packet'
-    const allowedUnits = useMemo(() => {
-        if (!baseUnit) return [];
-        if (baseUnit === "kg") return ["kg", "gm"];
-        if (baseUnit === "ltr") return ["ltr", "ml"];
-        if (baseUnit === "piece") return ["piece"];
-        if (baseUnit === "packet") return ["packet"];
-        return [];
-    }, [baseUnit]);
+//         if (base === "kg") return unit === "gm" ? (rate * qty) / 1000 : rate * qty;
+//         if (base === "ltr") return unit === "ml" ? (rate * qty) / 1000 : rate * qty;
+//         return rate * qty;
+//     };
 
-    const computePrice = (rate: number, qty: number, unit: string, base: string | undefined) => {
-        if (!rate || !qty || !unit || !base) return 0;
-        // invalid unit → do not calculate
-        if (!allowedUnits.includes(unit)) return 0;
+//     /* Sync on product change (name, rate, unit) */
+//     useEffect(() => {
+//         if (!selectedProduct) return;
 
-        if (base === "kg") return unit === "gm" ? (rate * qty) / 1000 : rate * qty;
-        if (base === "ltr") return unit === "ml" ? (rate * qty) / 1000 : rate * qty;
-        // piece or packet
-        return rate * qty; // exact units only
-    };
+//         // name & rate from DB
+//         if (item?.name !== selectedProduct.name) {
+//             setValue(`product.${index}.name`, selectedProduct.name, { shouldDirty: false });
+//         }
+//         if (item?.rate !== selectedProduct.saleRate) {
+//             setValue(`product.${index}.rate`, selectedProduct.saleRate, { shouldDirty: false });
+//         }
 
-    /* Sync on product change (name, rate, unit) */
-    useEffect(() => {
-        if (!selectedProduct) return;
+//         // If current unit is empty or invalid for this product, reset to base unit
+//         if (!item?.unit || !allowedUnits.includes(item.unit)) {
+//             setValue(`product.${index}.unit`, baseUnit!, { shouldDirty: false });
+//         }
+//     }, [selectedProduct, allowedUnits, baseUnit, index, item?.name, item?.rate, item?.unit, setValue]);
 
-        // name & rate from DB
-        if (item?.name !== selectedProduct.name) {
-            setValue(`product.${index}.name`, selectedProduct.name, { shouldDirty: false });
-        }
-        if (item?.rate !== selectedProduct.saleRate) {
-            setValue(`product.${index}.rate`, selectedProduct.saleRate, { shouldDirty: false });
-        }
+//     /* Recompute price when qty/unit/rate changes */
+//     useEffect(() => {
+//         const price = computePrice(item?.rate, item?.qty, item?.unit, baseUnit);
+//         if (item?.price !== price) {
+//             setValue(`product.${index}.price`, Number(price.toFixed(2)), { shouldDirty: false });
+//         }
+//     }, [item?.rate, item?.qty, item?.unit, baseUnit, index, item?.price, setValue]);
 
-        // If current unit is empty or invalid for this product, reset to base unit
-        if (!item?.unit || !allowedUnits.includes(item.unit)) {
-            setValue(`product.${index}.unit`, baseUnit!, { shouldDirty: false });
-        }
-    }, [selectedProduct, allowedUnits, baseUnit, index, item?.name, item?.rate, item?.unit, setValue]);
+//     return (
+//         <div className="ml-2 px-2 border-l-2 border-gray-500 rounded grid grid-cols-12 gap-3 items-center w-full">
+//             {/* Product Select */}
+//             <FormControl className="col-span-full md:col-span-5">
+//                 <InputLabel sx={{ top: -4 }}>Product</InputLabel>
+//                 <Controller
+//                     control={control}
+//                     name={`product.${index}.productId`}
+//                     render={({ field }) => (
+//                         <Select {...field} size="small" value={field.value ?? ""} label="Product">
+//                             {products.map((p: any) => (
+//                                 <MenuItem key={p.id} value={p.id}>
+//                                     {p.name}
+//                                 </MenuItem>
+//                             ))}
+//                         </Select>
+//                     )}
+//                 />
+//             </FormControl>
 
-    /* Recompute price when qty/unit/rate changes */
-    useEffect(() => {
-        const price = computePrice(item?.rate, item?.qty, item?.unit, baseUnit);
-        if (item?.price !== price) {
-            setValue(`product.${index}.price`, Number(price.toFixed(2)), { shouldDirty: false });
-        }
-    }, [item?.rate, item?.qty, item?.unit, baseUnit, index, item?.price, setValue]);
+//             {/* Qty */}
+//             <TextField
+//                 type="number"
+//                 label="Qty"
+//                 size="small"
+//                 className="md:col-span-2 col-span-3"
+//                 inputProps={{ min: 0, step: "any" }}
+//                 {...register(`product.${index}.qty`, { valueAsNumber: true })}
+//             />
 
-    return (
-        <div className="ml-2 px-2 border-l-2 border-gray-500 rounded grid grid-cols-12 gap-3 items-center w-full">
-            {/* Product Select */}
-            <FormControl className="col-span-full md:col-span-5">
-                <InputLabel sx={{ top: -4 }}>Product</InputLabel>
-                <Controller
-                    control={control}
-                    name={`product.${index}.productId`}
-                    render={({ field }) => (
-                        <Select {...field} size="small" value={field.value ?? ""} label="Product">
-                            {products.map((p: any) => (
-                                <MenuItem key={p.id} value={p.id}>
-                                    {p.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    )}
-                />
-            </FormControl>
+//             {/* Unit */}
+//             <FormControl className="md:col-span-2 col-span-3">
+//                 <InputLabel>Unit</InputLabel>
+//                 <Controller
+//                     control={control}
+//                     name={`product.${index}.unit`}
+//                     render={({ field }) => (
+//                         <Select {...field} label="Unit" size="small" value={field.value ?? ""}>
+//                             {/* Placeholder until a product is selected */}
+//                             {!selectedProduct && (
+//                                 <MenuItem value="">
+//                                     <em>Select unit</em>
+//                                 </MenuItem>
+//                             )}
+//                             {allowedUnits.map((u) => (
+//                                 <MenuItem key={u} value={u}>
+//                                     {u}
+//                                 </MenuItem>
+//                             ))}
+//                         </Select>
+//                     )}
+//                 />
+//             </FormControl>
 
-            {/* Qty */}
-            <TextField
-                type="number"
-                label="Qty"
-                size="small"
-                className="md:col-span-2 col-span-3"
-                inputProps={{ min: 0, step: "any" }}
-                {...register(`product.${index}.qty`, { valueAsNumber: true })}
-            />
+//             {/* Price (auto) */}
+//             <TextField
+//                 type="number"
+//                 label="Price"
+//                 size="small"
+//                 className="md:col-span-2 col-span-3"
+//                 {...register(`product.${index}.price`, { valueAsNumber: true })}
+//             />
 
-            {/* Unit */}
-            <FormControl className="md:col-span-2 col-span-3">
-                <InputLabel>Unit</InputLabel>
-                <Controller
-                    control={control}
-                    name={`product.${index}.unit`}
-                    render={({ field }) => (
-                        <Select {...field} label="Unit" size="small" value={field.value ?? ""}>
-                            {/* Placeholder until a product is selected */}
-                            {!selectedProduct && (
-                                <MenuItem value="">
-                                    <em>Select unit</em>
-                                </MenuItem>
-                            )}
-                            {allowedUnits.map((u) => (
-                                <MenuItem key={u} value={u}>
-                                    {u}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    )}
-                />
-            </FormControl>
-
-            {/* Price (auto) */}
-            <TextField
-                type="number"
-                label="Price"
-                size="small"
-                className="md:col-span-2 col-span-3"
-                {...register(`product.${index}.price`, { valueAsNumber: true })}
-            />
-
-            {/* Delete */}
-            <IconButton color="error" onClick={onRemove}>
-                <Delete />
-            </IconButton>
-        </div>
-    );
-}
+//             {/* Delete */}
+//             <IconButton color="error" onClick={onRemove}>
+//                 <Delete />
+//             </IconButton>
+//         </div>
+//     );
+// }

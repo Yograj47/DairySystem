@@ -31,6 +31,38 @@
       "saleRate": 900,
       "unit": "kg",
       "category": "Cake"
+    },
+    {
+      "id": "b11b",
+      "name": "Ghee",
+      "purchaseRate": 700,
+      "saleRate": 800,
+      "unit": "ltr",
+      "category": "Butter"
+    },
+    {
+      "id": "a165",
+      "name": "Cow Cheese",
+      "purchaseRate": 500,
+      "saleRate": 750,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "19d2",
+      "name": "Yak Cheese",
+      "purchaseRate": 1000,
+      "saleRate": 1500,
+      "unit": "kg",
+      "category": "Cheese"
+    },
+    {
+      "id": "c3ac",
+      "name": "Chocolate Crumble Icecream",
+      "purchaseRate": 150,
+      "saleRate": 500,
+      "unit": "kg",
+      "category": "Ice Cream"
     }
   ],
   "stock": [
@@ -62,6 +94,38 @@
       "sold": 0,
       "remaining": 20,
       "status": "out of stock"
+    },
+    {
+      "id": "ac7c",
+      "productId": "b11b",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
+    },
+    {
+      "id": "b7a0",
+      "productId": "a165",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
+    },
+    {
+      "id": "9028",
+      "productId": "19d2",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
+    },
+    {
+      "id": "d75b",
+      "productId": "c3ac",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
     }
   ],
   "purchases": [
@@ -84,24 +148,226 @@
   ],
   "sales": [
     {
-      "id": "3aad",
-      "customerName": "Jack Dai",
-      "product": [
+      "id": 1,
+      "customerName": "Aarav Sharma",
+      "date": "2025-01-14",
+      "products": [
         {
-          "productId": "4849",
-          "name": "Cow Milk",
-          "qty": 2000,
-          "unit": "ml",
-          "rate": 60,
-          "price": 120
+          "name": "Milk",
+          "qty": 10,
+          "rate": 50,
+          "total": 500
         },
         {
-          "productId": "d640",
-          "name": "Choco Cookies",
+          "name": "Butter",
           "qty": 2,
-          "unit": "piece",
+          "rate": 200,
+          "total": 400
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "customerName": "Sita Koirala",
+      "date": "2025-02-03",
+      "products": [
+        {
+          "name": "Cheese",
+          "qty": 3,
+          "rate": 300,
+          "total": 900
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "customerName": "Ramesh Adhikari",
+      "date": "2025-02-21",
+      "products": [
+        {
+          "name": "Yogurt",
+          "qty": 5,
           "rate": 60,
-          "price": 120
+          "total": 300
+        },
+        {
+          "name": "Bread",
+          "qty": 4,
+          "rate": 40,
+          "total": 160
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "customerName": "Maya Shrestha",
+      "date": "2025-03-11",
+      "products": [
+        {
+          "name": "Ice Cream",
+          "qty": 6,
+          "rate": 120,
+          "total": 720
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "customerName": "Dipesh Bista",
+      "date": "2025-04-07",
+      "products": [
+        {
+          "name": "Milk",
+          "qty": 15,
+          "rate": 50,
+          "total": 750
+        },
+        {
+          "name": "Cake",
+          "qty": 1,
+          "rate": 500,
+          "total": 500
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "customerName": "Anita Gurung",
+      "date": "2025-05-22",
+      "products": [
+        {
+          "name": "Butter",
+          "qty": 3,
+          "rate": 200,
+          "total": 600
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "customerName": "Krishna Basnet",
+      "date": "2025-06-15",
+      "products": [
+        {
+          "name": "Cheese",
+          "qty": 2,
+          "rate": 300,
+          "total": 600
+        },
+        {
+          "name": "Yogurt",
+          "qty": 8,
+          "rate": 60,
+          "total": 480
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "customerName": "Rajan Shahi",
+      "date": "2025-07-04",
+      "products": [
+        {
+          "name": "Bread",
+          "qty": 10,
+          "rate": 40,
+          "total": 400
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "customerName": "Laxmi Dhakal",
+      "date": "2025-08-19",
+      "products": [
+        {
+          "name": "Ice Cream",
+          "qty": 12,
+          "rate": 120,
+          "total": 1440
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "customerName": "Sujan KC",
+      "date": "2025-09-09",
+      "products": [
+        {
+          "name": "Milk",
+          "qty": 20,
+          "rate": 50,
+          "total": 1000
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "customerName": "Bimala Rai",
+      "date": "2025-10-13",
+      "products": [
+        {
+          "name": "Cake",
+          "qty": 2,
+          "rate": 500,
+          "total": 1000
+        },
+        {
+          "name": "Butter",
+          "qty": 1,
+          "rate": 200,
+          "total": 200
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "customerName": "Ganesh Thapa",
+      "date": "2025-11-27",
+      "products": [
+        {
+          "name": "Cheese",
+          "qty": 5,
+          "rate": 300,
+          "total": 1500
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "customerName": "Prakash Oli",
+      "date": "2025-12-05",
+      "products": [
+        {
+          "name": "Milk",
+          "qty": 8,
+          "rate": 50,
+          "total": 400
+        },
+        {
+          "name": "Bread",
+          "qty": 5,
+          "rate": 40,
+          "total": 200
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "customerName": "Sunita Maharjan",
+      "date": "2025-12-21",
+      "products": [
+        {
+          "name": "Yogurt",
+          "qty": 10,
+          "rate": 60,
+          "total": 600
+        },
+        {
+          "name": "Ice Cream",
+          "qty": 3,
+          "rate": 120,
+          "total": 360
         }
       ]
     }

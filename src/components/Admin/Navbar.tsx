@@ -1,67 +1,49 @@
-import { Bell, ChevronDown, LogOut, Search, Settings, User } from "lucide-react";
+import { Bell, Moon, Sun, X } from "lucide-react";
+import pp from "../../assets/pp.jpg"
+import { useDarkMode } from "../context/DarkMode";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 function Navbar() {
-    const [isOpen, setOpen] = useState(false);
-
+    const { isDark, toggleDark } = useDarkMode()
+    const [isNotfiyOpen, setNotfiyOpen] = useState<boolean>(false);
     return (
-        <header className="relative bg-white text-black px-6 py-3 flex justify-between items-center shadow-md">
-            {/* Search bar */}
-            <div className="flex items-center ring-2 ring-gray-100 rounded-md overflow-hidden focus-within:outline-2 focus-within:outline-blue-500">
-                <Search className="w-5 h-5 mx-2 text-gray-500" />
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="px-2 py-1 outline-none text-sm w-64"
-                />
+        <header className={`h-full w-full z-50 ${isDark ? "bg-[#24303f] text-whit" : "bg-white  text-black"} px-6 py-3 gap-12 flex justify-end items-center border-b-2 border-black/25 `}>
+
+            {/* Other icons */}
+            <div className="flex items-center gap-6">
+                <button
+                    onClick={toggleDark}
+                    className={` relative h-8 w-16 rounded-full flex items-center transition-colors duration-500 ease-in-out
+                         ${isDark ? "bg-gradient-to-r from-indigo-800 to-purple-700" : "bg-gradient-to-r from-yellow-300 to-orange-400"}`}
+                >
+                    <span
+                        className={` absolute flex items-center justify-center h-7 w-7 rounded-full shadow-lg top-1/2 -translate-y-1/2
+                            transition-all duration-500 ease-in-out cursor-pointer
+                            ${isDark ? "translate-x-8 bg-gray-900 text-yellow-300" : "translate-x-1 bg-white text-yellow-500"} `}>
+                        {isDark ? <Moon size={16} /> : <Sun size={16} />}
+                    </span>
+                </button>
+                <button className={`p-2 rounded-full text-white ${isDark ? " bg-indigo-600 hover:bg-indigo-400" : "bg-gray-500 hover:bg-gray-700"} cursor-pointer transition-all duration-150`} onClick={() => setNotfiyOpen(true)}>
+                    <Bell className="w-5 h-5" />
+                </button>
             </div>
-            <div className="flex gap-2">
-                {/* Other icons */}
-                <div className="flex items-center gap-2">
-                    <button className="relative h-8 w-14 px-3 py-1 rounded-xl bg-gray-300 transition-colors text-sm font-medium">
-                        <p className="absolute left-1 top-50% -translate-y-1/2 h-6 w-6 shadow-xs shadow-black/50 bg-white rounded-full"></p>
-                    </button>
-                    <button className="p-2 rounded-full bg-blue-100/75 hover:bg-gray-100 transition-colors">
-                        <Bell className="w-5 h-5" />
-                    </button>
+
+            {/* user icon */}
+            <div className="flex flex-col items-center">
+                <img src={pp} alt="pp" className="h-10 w-10 rounded-full" />
+                <span className={`${isDark ? "text-gray-100" : "text-sky-600"} hidden md:inline font-light`}>Admin</span>
+            </div>
+
+            <div className={` ${isNotfiyOpen ? "block" : "hidden"} p-2 absolute z-50 right-0 bottom-0 md:w-[25%] w-[35%] h-full border-l border-black/50 ${isDark ? "bg-[#24303f]" : "bg-white"}`}>
+                <div className={`rounded-full hover: bg-gray-300 w-8 h-8 flex justify-center items-center cursor-pointer`} onClick={() => setNotfiyOpen(false)}>
+                    <X />
                 </div>
-
-                {/* User menu */}
-                <div>
-                    <button
-                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors focus:outline-none"
-                        onClick={() => setOpen(!isOpen)}
-                    >
-                        <User className="w-6 h-6" />
-                        <span className="hidden md:inline font-medium text-blue-500">Admin</span>
-                        <ChevronDown
-                            className={`w-4 h-4 transition-transform text-gray-500 ${isOpen ? "rotate-180" : ""}`}
-                        />
-                    </button>
-
-                    {/* Dropdown menu */}
-                    {isOpen && (
-                        <div className="absolute right-0 -bottom-20 w-48 bg-white text-black border border-black/25 rounded-md shadow-lg shadow-blue-200 overflow-hidden z-50">
-                            <Link
-                                to="/settings"
-                                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition-colors"
-                                onClick={() => setOpen(false)}
-                            >
-                                <Settings className="w-5 h-5" /> Account Setting
-                            </Link>
-                            <Link
-                                to="/logout"
-                                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition-colors"
-                                onClick={() => setOpen(false)}
-                            >
-                                <LogOut className="w-5 h-5" /> Logout
-                            </Link>
-                        </div>
-                    )}
+                <div className="mt-2">
+                    <h2>Notification</h2>
+                    <div></div>
                 </div>
             </div>
-        </header>
+        </header >
     );
 }
 

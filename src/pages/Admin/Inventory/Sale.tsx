@@ -1,8 +1,9 @@
-import SaleForm from "../../../components/Admin/Product/SaleForm";
+// import SaleForm from "../../../components/Admin/Product/SaleForm";
 function Sale() {
 
     return (
-        < SaleForm />
+        // < SaleForm />
+        <p>Hello</p>
     );
 }
 
