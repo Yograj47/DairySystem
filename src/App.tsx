@@ -64,7 +64,7 @@ function App() {
         </div>
 
         {/* Main dashboard content 90% height, scrollable */}
-        <div className="h-[90%] overflow-y-auto p-4 w-full">
+        <div className="h-[90%] w-full">
           <Routes>
 
             {/* Dashboard */}

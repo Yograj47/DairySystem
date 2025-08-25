@@ -1,14 +1,15 @@
 import {
-    Button,
-    FormControl,
-    InputLabel,
+    Box,
+    TextField,
     MenuItem,
     Select,
-    TextField,
+    InputLabel,
+    FormControl,
+    Button,
     Typography,
-    Divider,
-    Paper,
+    Card,
     FormHelperText,
+    Divider,
 } from "@mui/material";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -17,8 +18,8 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProduct } from "../../../components/hook/ProductFetch";
 import { useStock } from "../../../components/hook/StockFetch";
+import { useDarkMode } from "../../../components/context/DarkMode";
 
-// Validation Schema
 const AddStockSchema = z.object({
     supplierName: z.string().min(2, "Supplier name is required"),
     productId: z.string().min(1, "Product is required"),
@@ -30,6 +31,7 @@ const AddStockSchema = z.object({
 type IAddStock = z.infer<typeof AddStockSchema>;
 
 export default function AddStock() {
+    const { isDark } = useDarkMode();
     const {
         control,
         register,
@@ -51,17 +53,14 @@ export default function AddStock() {
 
     const [unit, setUnit] = useState<string>();
     const [invoiceData, setInvoiceData] = useState<IAddStock | null>(null);
-    const { data: products } = useProduct()
-    const { data: stock } = useStock()
 
-    const productData = products ? products : []
-    const stockData = stock ? stock : []
+    const { data: products } = useProduct();
+    const { data: stock } = useStock();
 
-
-    // Watch productId instead of productName
+    const productData = products ?? [];
+    const stockData = stock ?? [];
     const productId = watch("productId");
 
-    // Update price & unit when product changes
     useEffect(() => {
         if (productId) {
             const selected = productData.find((p) => p.id === productId);
@@ -75,177 +74,231 @@ export default function AddStock() {
         }
     }, [productId, productData, setValue]);
 
-    // Submit handler
     const onSubmit = async (data: IAddStock) => {
-        const stockItem = stockData.find(s => s.productId === productId);
+        const stockItem = stockData.find((s) => s.productId === productId);
+        setInvoiceData(data); // show preview immediately
 
         try {
-            // 1. Save purchase record
             await axios.post("http://localhost:5000/purchases", data);
 
-            // 2. Update stock for that product
             if (stockItem) {
                 await axios.put(`http://localhost:5000/stock/${stockItem.id}`, {
                     ...stockItem,
                     total: stockItem.total + data.quantity,
-                    remaining: stockItem.remaining + data.quantity - stockItem.sold
+                    remaining: stockItem.remaining + data.quantity - stockItem.sold,
                 });
             }
-
-            // 3. Save data for invoice
-            setInvoiceData(data);
-
-            // 4. Reset form
-            reset();
         } catch (err) {
             console.error("Error adding stock:", err);
         }
     };
 
-    // Get selected product for invoice
-    const selectedProduct = productData.find((p) => p.id === invoiceData?.productId);
+    const selectedProduct = productData.find(
+        (p) => p.id === invoiceData?.productId
+    );
 
     return (
-        <div className="p-6 h-full w-full bg-gray-100 flex justify-start items-start flex-wrap md:justify-center gap-6">
-            {/* AddStock Form */}
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="flex flex-col gap-4 w-full md:max-w-md bg-white p-6 rounded-lg shadow-md"
-            >
-                {/* Supplier Name */}
-                <TextField
-                    label="Supplier Name"
-                    fullWidth
-                    {...register("supplierName")}
-                    error={!!errors.supplierName}
-                    helperText={errors.supplierName?.message}
-                />
-
-                {/* Product */}
-                <FormControl fullWidth error={!!errors.productId}>
-                    <InputLabel id="product-label">Product</InputLabel>
-                    <Controller
-                        name="productId"
-                        control={control}
-                        render={({ field }) => (
-                            <Select {...field} labelId="product-label" label="Product">
-                                {productData.map((p) => (
-                                    <MenuItem key={p.id} value={p.id}>
-                                        {p.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        )}
+        <Box className={`p-6 h-full w-full flex justify-center items-start`}>
+            {!invoiceData ? (
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className={`flex flex-col gap-4 w-full max-w-md p-6 rounded-lg shadow-md ${isDark ? "bg-gray-800 text-white" : "bg-white text-black"
+                        }`}
+                >
+                    {/* Supplier */}
+                    <TextField
+                        label="Supplier Name"
+                        fullWidth
+                        {...register("supplierName")}
+                        error={!!errors.supplierName}
+                        helperText={errors.supplierName?.message}
+                        sx={{
+                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
+                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+                            "& .MuiOutlinedInput-root fieldset": {
+                                borderColor: isDark ? "#555" : "#ccc",
+                            },
+                        }}
                     />
-                    <FormHelperText>{errors.productId?.message}</FormHelperText>
-                </FormControl>
 
-                {/* Quantity */}
-                <TextField
-                    type="number"
-                    label="Quantity"
-                    fullWidth
-                    {...register("quantity")}
-                    error={!!errors.quantity}
-                    helperText={errors.quantity?.message}
-                />
+                    {/* Product */}
+                    <FormControl
+                        fullWidth
+                        error={!!errors.productId}
+                        sx={{
+                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+                            "& .MuiOutlinedInput-root .MuiSelect-select": {
+                                color: isDark ? "white" : "black",
+                            },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: isDark ? "#555" : "#ccc",
+                            },
+                            "& .MuiSvgIcon-root": { color: isDark ? "#fff" : "#ccc" },
+                        }}
+                    >
+                        <InputLabel id="product-label">Product</InputLabel>
+                        <Controller
+                            name="productId"
+                            control={control}
+                            render={({ field }) => (
+                                <Select {...field} label="Product" labelId="product-label">
+                                    {productData.map((p) => (
+                                        <MenuItem key={p.id} value={p.id}>
+                                            {p.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                        <FormHelperText>
+                            {errors.productId?.message}
+                        </FormHelperText>
+                    </FormControl>
 
-                {/* Price */}
-                <div className="flex w-full items-center gap-2 text-gray-500">
+                    {/* Quantity */}
                     <TextField
                         type="number"
-                        label="Price (Rs)"
+                        label="Quantity"
                         fullWidth
-                        {...register("price")}
-                        disabled
-                        error={!!errors.price}
-                        helperText={errors.price?.message}
+                        {...register("quantity")}
+                        error={!!errors.quantity}
+                        helperText={errors.quantity?.message}
+                        sx={{
+                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
+                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+                            "& .MuiOutlinedInput-root fieldset": {
+                                borderColor: isDark ? "#555" : "#ccc",
+                            },
+                        }}
                     />
-                    <Typography>per {unit ? unit : "unit"}</Typography>
-                </div>
 
-                {/* Date */}
-                <TextField
-                    type="date"
-                    fullWidth
-                    {...register("date")}
-                    error={!!errors.date}
-                    helperText={errors.date?.message?.toString()}
-                />
-
-                <Button variant="contained" type="submit" fullWidth>
-                    Add Stock
-                </Button>
-            </form>
-
-            {/* Invoice Section */}
-            {invoiceData && selectedProduct && (
-                <Paper elevation={3} className="p-6 w-full max-w-md bg-white rounded-lg shadow-md">
-                    {/* Company Info */}
-                    <div className="text-center mb-4">
-                        <Typography variant="h5" className="font-bold text-gray-800">
-                            Jack Dairy
+                    {/* Price */}
+                    <Box className="flex gap-2 items-center">
+                        <TextField
+                            type="number"
+                            label="Price (Rs)"
+                            fullWidth
+                            {...register("price")}
+                            disabled
+                            error={!!errors.price}
+                            helperText={errors.price?.message}
+                            sx={{
+                                "& .MuiInputBase-input.Mui-disabled": { color: isDark ? "white" : "black" },
+                                "& .MuiInputLabel-root.Mui-disabled": { color: isDark ? "white" : "gray" },
+                                "& .MuiOutlinedInput-root fieldset": {
+                                    borderColor: isDark ? "#555" : "#ccc",
+                                },
+                            }}
+                        />
+                        <Typography sx={{ color: isDark ? "white" : "black" }}>
+                            per {unit || "unit"}
                         </Typography>
-                        <Typography variant="body2" className="text-gray-600">
-                            Kathmandu, Nepal
-                        </Typography>
-                        <Typography variant="body2" className="text-gray-500">
-                            Invoice No: {Date.now()}
-                        </Typography>
-                    </div>
-                    <Divider className="mb-4" />
+                    </Box>
 
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-2">
-                        <Typography variant="h6" className="font-bold text-gray-800">
-                            Purchase Invoice
-                        </Typography>
-                        <Typography variant="body2" className="text-gray-500">
-                            {new Date(invoiceData.date).toLocaleDateString()}
-                        </Typography>
-                    </div>
-                    <Divider className="mb-4" />
+                    {/* Date */}
+                    <TextField
+                        type="date"
+                        fullWidth
+                        {...register("date")}
+                        error={!!errors.date}
+                        helperText={errors.date?.message?.toString()}
+                        sx={{
+                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
+                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+                            "& .MuiOutlinedInput-root fieldset": {
+                                borderColor: isDark ? "#555" : "#ccc",
+                            },
+                        }}
+                    />
 
-                    {/* Details */}
-                    <div className="space-y-3 text-sm">
-                        <div className="flex justify-between">
-                            <span className="font-medium text-gray-600">Supplier</span>
-                            <span className="text-gray-800">{invoiceData.supplierName}</span>
-                        </div>
+                    <Button
+                        variant="contained"
+                        type="submit"
+                        fullWidth
+                        sx={{
+                            backgroundColor: isDark ? "#2563eb" : undefined,
+                            "&:hover": { backgroundColor: isDark ? "#1d4ed8" : undefined },
+                        }}
+                    >
+                        Preview Invoice
+                    </Button>
+                </form>
+            ) : (
+                <Card
+                    sx={{
+                        p: 4,
+                        maxWidth: 500,
+                        width: "100%",
+                        backgroundColor: isDark ? "#1e293b" : "#f9fafb",
+                        color: isDark ? "white" : "black",
+                        border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                        borderRadius: 2,
+                        boxShadow: "sm",
+                    }}
+                >
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontWeight: "bold",
+                            mb: 2,
+                            borderBottom: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                            pb: 1,
+                        }}
+                    >
+                        Invoice Preview
+                    </Typography>
 
-                        <div className="flex justify-between">
-                            <span className="font-medium text-gray-600">Product</span>
-                            <span className="text-gray-800">
-                                {selectedProduct.name} ({selectedProduct.category})
-                            </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                            <span className="font-medium text-gray-600">Quantity</span>
-                            <span className="text-gray-800">
+                    <Box className="space-y-2 text-sm">
+                        <Box className="flex justify-between">
+                            <Typography fontWeight={500}>Supplier:</Typography>
+                            <Typography>{invoiceData.supplierName}</Typography>
+                        </Box>
+                        <Box className="flex justify-between">
+                            <Typography fontWeight={500}>Product:</Typography>
+                            <Typography>
+                                {selectedProduct?.name} ({selectedProduct?.category})
+                            </Typography>
+                        </Box>
+                        <Box className="flex justify-between">
+                            <Typography fontWeight={500}>Quantity:</Typography>
+                            <Typography>
                                 {invoiceData.quantity} {unit}
-                            </span>
-                        </div>
+                            </Typography>
+                        </Box>
+                        <Box className="flex justify-between">
+                            <Typography fontWeight={500}>Price:</Typography>
+                            <Typography>Rs {invoiceData.price}</Typography>
+                        </Box>
+                        <Divider sx={{ my: 1 }} />
+                        <Box className="flex justify-between font-bold">
+                            <Typography>Total:</Typography>
+                            <Typography>Rs {invoiceData.quantity * invoiceData.price}</Typography>
+                        </Box>
+                    </Box>
 
-                        <div className="flex justify-between">
-                            <span className="font-medium text-gray-600">Price</span>
-                            <span className="text-gray-800">Rs {invoiceData.price}</span>
-                        </div>
-                    </div>
-
-                    <Divider sx={{ margin: "1rem 0 .5rem" }} />
-
-                    {/* Total */}
-                    <div className="flex justify-between items-center">
-                        <Typography variant="subtitle1" fontWeight={"bold"} className="text-gray-800">
-                            Total
-                        </Typography>
-                        <Typography variant="subtitle1" fontWeight={"bold"} className="text-gray-900">
-                            Rs {invoiceData.quantity * invoiceData.price}
-                        </Typography>
-                    </div>
-                </Paper>
+                    <Box className="flex gap-3 mt-4">
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={() => setInvoiceData(null)}
+                        >
+                            Back to Edit
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            onClick={() => {
+                                alert("Proceeding with this invoice!");
+                                reset();
+                                setInvoiceData(null);
+                            }}
+                        >
+                            Proceed
+                        </Button>
+                    </Box>
+                </Card>
             )}
-        </div>
+        </Box>
     );
 }

@@ -1,66 +1,136 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useDarkMode } from "../../context/DarkMode";
+import { useSales } from "../../hook/SaleFetch";
+import { paginate } from "../../../utils/Pagination";
 
-export interface IRecentPurchase {
-    id: number;
-    customerName: string;
-    productName: string;
-    quantity: number;
-    price: number;
-    total: number;
-}
+function RecentSaleTable() {
+    const { data: sales } = useSales();
+    const { isDark } = useDarkMode();
 
-function RecentPurchasesTable() {
-    const [purchases, setPurchases] = useState<IRecentPurchase[]>([]);
+    const [currPage, setCurrentPage] = useState(1);
+    const dataPerPage = 7;
 
-    useEffect(() => {
-        const data: IRecentPurchase[] = [
-            { id: 1, customerName: "John Doe", productName: "Whole Milk 1L", quantity: 2, price: 60, total: 120 },
-            { id: 2, customerName: "Jane Smith", productName: "Paneer 200g", quantity: 1, price: 90, total: 90 },
-            { id: 3, customerName: "Alice Brown", productName: "Butter 100g", quantity: 3, price: 85, total: 255 },
-            { id: 4, customerName: "Bob Johnson", productName: "Ghee 500ml", quantity: 1, price: 450, total: 450 },
-            { id: 5, customerName: "Bob Johnson", productName: "Ghee 500ml", quantity: 1, price: 450, total: 450 },
-            { id: 6, customerName: "Mary Lee", productName: "Skimmed Milk 1L", quantity: 2, price: 55, total: 110 },
-        ];
-        setPurchases(data);
-    }, []);
+    if (!sales) return null;
 
-    const heads = ['Customer', 'Product', 'Quantity', 'Price', 'Total'];
-    const dataStyle = "px-4 py-2 text-sm text-gray-700";
+    const rows = sales.slice(0, 7).flatMap((sale, saleIndex) =>
+        sale.products.map((product, productIndex) => ({
+            id: `${saleIndex}-${productIndex}`,
+            customer: sale.customerName,
+            product: product.name,
+            qty: product.qty,
+            rate: product.rate,
+            total: product.total,
+        }))
+    );
+
+    const { items: currRows, totalPages } = paginate({
+        items: rows,
+        currentPage: currPage,
+        itemsPerPage: dataPerPage,
+    });
 
     return (
-        <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col h-full">
-            <h2 className="text-lg font-normal mb-4">Recent Sale</h2>
+        <div
+            className={`h-full w-full flex flex-col rounded-2xl shadow-sm border transition-colors ${isDark
+                ? "bg-[#1e293b] border-gray-700"
+                : "bg-white border-gray-300"
+                }`}>
+            {/* Header */}
+            <div
+                className={`w-full flex justify-between items-center p-3 border-b ${isDark
+                    ? "border-gray-700"
+                    : "border-gray-300"
+                    }`}
+            >
+                <h2 className={`${isDark ? "text-white" : "text-gray-800"} text-lg font-medium`}>
+                    Recent Sales
+                </h2>
+            </div>
 
-            {/* Table wrapper with scroll */}
-            <div className="overflow-y-auto flex-1">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-blue-100 sticky top-0">
+            {/* Table */}
+            <div className="h-full">
+                <table
+                    className={`w-full text-sm ${isDark ? "text-gray-300" : "text-gray-700"}`}
+                >
+                    <thead
+                        className={`border-y ${isDark
+                            ? "bg-[#24303f] border-gray-700"
+                            : "bg-gray-100 border-gray-300"
+                            }`}
+                    >
                         <tr>
-                            {heads.map((head, index) => (
-                                <th
-                                    key={index}
-                                    className="px-4 py-2 text-left text-sm font-bold text-gray-700"
-                                >
-                                    {head}
-                                </th>
-                            ))}
+                            <th className="px-3 py-2 text-left font-medium">Customer</th>
+                            <th className="px-3 py-2 text-left font-medium">Product</th>
+                            <th className="px-3 py-2 text-left font-medium">Qty</th>
+                            <th className="px-3 py-2 text-left font-medium">Rate</th>
+                            <th className="px-3 py-2 text-left font-medium">Total</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-blue-200">
-                        {purchases.map((purchase, index) => (
-                            <tr key={index}>
-                                <td className={dataStyle}>{purchase.customerName}</td>
-                                <td className={dataStyle}>{purchase.productName}</td>
-                                <td className={dataStyle}>{purchase.quantity}</td>
-                                <td className={dataStyle}>₹{purchase.price}</td>
-                                <td className={dataStyle}>₹{purchase.total}</td>
+
+                    <tbody>
+                        {currRows.map((row) => (
+                            <tr
+                                key={row.id}
+                                className={`border-b transition ${isDark
+                                    ? "border-gray-700 hover:bg-gray-800"
+                                    : "border-gray-300 hover:bg-gray-50"
+                                    }`}
+                            >
+                                <td className="px-3 py-2">{row.customer}</td>
+                                <td className="px-3 py-2">{row.product}</td>
+                                <td className="px-3 py-2">{row.qty}</td>
+                                <td className="px-3 py-2">₹{row.rate}</td>
+                                <td className="px-3 py-2">₹{row.total}</td>
                             </tr>
                         ))}
+
+                        {rows.length === 0 && (
+                            <tr>
+                                <td
+                                    colSpan={5}
+                                    className="text-center py-6 text-gray-500 dark:text-gray-400"
+                                >
+                                    No sales found.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Pagination */}
+            <div
+                className={`flex justify-end items-center gap-3 p-3 border-t text-sm ${isDark
+                    ? "text-gray-300 border-gray-700"
+                    : "text-gray-700 border-gray-300"
+                    }`}
+            >
+                <span>
+                    Page <strong>{currPage}</strong> of <strong>{totalPages}</strong>
+                </span>
+                <button
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    disabled={currPage === 1}
+                    className={`px-2 py-1 border disabled:opacity-50 ${isDark
+                        ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
+                        : "border-gray-300 bg-white hover:bg-gray-100"
+                        }`}
+                >
+                    &lt;
+                </button>
+                <button
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    disabled={currPage === totalPages}
+                    className={`px-2 py-1 border disabled:opacity-50 ${isDark
+                        ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
+                        : "border-gray-300 bg-white hover:bg-gray-100"
+                        }`}
+                >
+                    &gt;
+                </button>
             </div>
         </div>
     );
 }
 
-export default RecentPurchasesTable;
+export default RecentSaleTable;

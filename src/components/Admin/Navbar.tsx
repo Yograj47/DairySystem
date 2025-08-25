@@ -31,7 +31,6 @@ function Navbar() {
             {/* user icon */}
             <div className="flex flex-col items-center">
                 <img src={pp} alt="pp" className="h-10 w-10 rounded-full" />
-                <span className={`${isDark ? "text-gray-100" : "text-sky-600"} hidden md:inline font-light`}>Admin</span>
             </div>
 
             <div className={` ${isNotfiyOpen ? "block" : "hidden"} p-2 absolute z-50 right-0 bottom-0 md:w-[25%] w-[35%] h-full border-l border-black/50 ${isDark ? "bg-[#24303f]" : "bg-white"}`}>

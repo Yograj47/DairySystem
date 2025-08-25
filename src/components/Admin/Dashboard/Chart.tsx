@@ -128,30 +128,30 @@ function Chart() {
                 },
             },
         },
-        scales: {
-            x: {
-                ticks: {
-                    color: isDark ? "#cbd5e1" : "#334155",
-                },
-                grid: {
-                    color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
-                },
-            },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    color: isDark ? "#cbd5e1" : "#334155",
-                },
-                grid: {
-                    color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
-                },
-            },
-        },
+        // scales: {
+        //     x: {
+        //         ticks: {
+        //             color: isDark ? "#cbd5e1" : "#334155",
+        //         },
+        //         grid: {
+        //             color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+        //         },
+        //     },
+        //     y: {
+        //         beginAtZero: true,
+        //         ticks: {
+        //             color: isDark ? "#cbd5e1" : "#334155",
+        //         },
+        //         grid: {
+        //             color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+        //         },
+        //     },
+        // },
     };
     return (
         <div
             className={`${isDark ? "bg-[#1e293b] ring-[#334155]" : "bg-white ring-gray-200"
-                } rounded-xl ring-1 p-5 h-full flex flex-col shadow-sm transition-colors`}
+                } ring-1 p-5 h-full flex flex-col rounded-2xl shadow-sm transition-colors`}
         >
             {/* Toggle buttons */}
             <div className="flex justify-end mb-4 space-x-2">
