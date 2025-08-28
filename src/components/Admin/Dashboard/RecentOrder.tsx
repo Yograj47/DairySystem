@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDarkMode } from "../../context/DarkMode";
+import { useDarkMode } from "../../hook/DarkMode";
 import { useSales } from "../../hook/SaleFetch";
 import { paginate } from "../../../utils/Pagination";
 

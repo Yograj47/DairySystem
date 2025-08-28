@@ -18,8 +18,9 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProduct } from "../../../components/hook/ProductFetch";
 import { useStock } from "../../../components/hook/StockFetch";
-import { useDarkMode } from "../../../components/context/DarkMode";
+import { useDarkMode } from "../../../components/hook/DarkMode";
 
+// ✅ Zod schema
 const AddStockSchema = z.object({
     supplierName: z.string().min(2, "Supplier name is required"),
     productId: z.string().min(1, "Product is required"),
@@ -29,6 +30,37 @@ const AddStockSchema = z.object({
 });
 
 type IAddStock = z.infer<typeof AddStockSchema>;
+
+// ✅ Reusable style helpers
+const darkTextFieldStyles = (isDark: boolean) => ({
+    "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
+    "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+    "& .MuiOutlinedInput-root": {
+        "& fieldset": { borderColor: isDark ? "#555" : "#ccc" },
+        "&:hover fieldset": { borderColor: isDark ? "white" : "#666" },
+        "&.Mui-focused fieldset": { borderColor: isDark ? "white" : "#1976d2" },
+    },
+    "& .MuiFormHelperText-root": {
+        color: isDark ? "#f87171" : "#d32f2f",
+    },
+});
+
+const darkSelectStyles = (isDark: boolean) => ({
+    "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
+    "& .MuiOutlinedInput-root .MuiSelect-select": {
+        color: isDark ? "white" : "black",
+    },
+    "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: isDark ? "#555" : "#ccc",
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: isDark ? "white" : "#666",
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: isDark ? "white" : "#1976d2",
+    },
+    "& .MuiSvgIcon-root": { color: isDark ? "#fff" : "#ccc" },
+});
 
 export default function AddStock() {
     const { isDark } = useDarkMode();
@@ -61,6 +93,7 @@ export default function AddStock() {
     const stockData = stock ?? [];
     const productId = watch("productId");
 
+    // Update price + unit when product changes
     useEffect(() => {
         if (productId) {
             const selected = productData.find((p) => p.id === productId);
@@ -74,6 +107,7 @@ export default function AddStock() {
         }
     }, [productId, productData, setValue]);
 
+    // Submit logic
     const onSubmit = async (data: IAddStock) => {
         const stockItem = stockData.find((s) => s.productId === productId);
         setInvoiceData(data); // show preview immediately
@@ -98,8 +132,11 @@ export default function AddStock() {
     );
 
     return (
-        <Box className={`p-6 h-full w-full flex justify-center items-start`}>
+        <Box className="p-6 h-full w-full flex justify-center items-start">
             {!invoiceData ? (
+                // ============================
+                // FORM
+                // ============================
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     className={`flex flex-col gap-4 w-full max-w-md p-6 rounded-lg shadow-md ${isDark ? "bg-gray-800 text-white" : "bg-white text-black"
@@ -112,47 +149,41 @@ export default function AddStock() {
                         {...register("supplierName")}
                         error={!!errors.supplierName}
                         helperText={errors.supplierName?.message}
-                        sx={{
-                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
-                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-                            "& .MuiOutlinedInput-root fieldset": {
-                                borderColor: isDark ? "#555" : "#ccc",
-                            },
-                        }}
+                        sx={darkTextFieldStyles(isDark)}
                     />
 
                     {/* Product */}
                     <FormControl
                         fullWidth
                         error={!!errors.productId}
-                        sx={{
-                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-                            "& .MuiOutlinedInput-root .MuiSelect-select": {
-                                color: isDark ? "white" : "black",
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: isDark ? "#555" : "#ccc",
-                            },
-                            "& .MuiSvgIcon-root": { color: isDark ? "#fff" : "#ccc" },
-                        }}
+                        sx={darkSelectStyles(isDark)}
                     >
                         <InputLabel id="product-label">Product</InputLabel>
                         <Controller
                             name="productId"
                             control={control}
                             render={({ field }) => (
-                                <Select {...field} label="Product" labelId="product-label">
+                                <Select {...field} labelId="product-label" label="Product">
                                     {productData.map((p) => (
-                                        <MenuItem key={p.id} value={p.id}>
+                                        <MenuItem
+                                            key={p.id}
+                                            value={p.id}
+                                            sx={{
+                                                color: isDark ? "white" : "black",
+                                                "&:hover": {
+                                                    backgroundColor: isDark
+                                                        ? "#334155"
+                                                        : "#f0f0f0",
+                                                },
+                                            }}
+                                        >
                                             {p.name}
                                         </MenuItem>
                                     ))}
                                 </Select>
                             )}
                         />
-                        <FormHelperText>
-                            {errors.productId?.message}
-                        </FormHelperText>
+                        <FormHelperText>{errors.productId?.message}</FormHelperText>
                     </FormControl>
 
                     {/* Quantity */}
@@ -163,13 +194,7 @@ export default function AddStock() {
                         {...register("quantity")}
                         error={!!errors.quantity}
                         helperText={errors.quantity?.message}
-                        sx={{
-                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
-                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-                            "& .MuiOutlinedInput-root fieldset": {
-                                borderColor: isDark ? "#555" : "#ccc",
-                            },
-                        }}
+                        sx={darkTextFieldStyles(isDark)}
                     />
 
                     {/* Price */}
@@ -183,13 +208,20 @@ export default function AddStock() {
                             error={!!errors.price}
                             helperText={errors.price?.message}
                             sx={{
-                                "& .MuiInputBase-input.Mui-disabled": { color: isDark ? "white" : "black" },
-                                "& .MuiInputLabel-root.Mui-disabled": { color: isDark ? "white" : "gray" },
-                                "& .MuiOutlinedInput-root fieldset": {
-                                    borderColor: isDark ? "#555" : "#ccc",
+                                ...darkTextFieldStyles(isDark),
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                    color: isDark
+                                        ? "rgba(255,255,255,0.6)"
+                                        : "rgba(0,0,0,0.6)",
+                                },
+                                "& .MuiInputLabel-root.Mui-disabled": {
+                                    color: isDark
+                                        ? "rgba(255,255,255,0.6)"
+                                        : "rgba(0,0,0,0.6)",
                                 },
                             }}
                         />
+
                         <Typography sx={{ color: isDark ? "white" : "black" }}>
                             per {unit || "unit"}
                         </Typography>
@@ -202,84 +234,148 @@ export default function AddStock() {
                         {...register("date")}
                         error={!!errors.date}
                         helperText={errors.date?.message?.toString()}
-                        sx={{
-                            "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
-                            "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-                            "& .MuiOutlinedInput-root fieldset": {
-                                borderColor: isDark ? "#555" : "#ccc",
-                            },
-                        }}
+                        sx={darkTextFieldStyles(isDark)}
                     />
 
+                    {/* Submit */}
                     <Button
                         variant="contained"
                         type="submit"
                         fullWidth
                         sx={{
                             backgroundColor: isDark ? "#2563eb" : undefined,
-                            "&:hover": { backgroundColor: isDark ? "#1d4ed8" : undefined },
+                            "&:hover": {
+                                backgroundColor: isDark ? "#1d4ed8" : undefined,
+                            },
                         }}
                     >
-                        Preview Invoice
+                        Preview
                     </Button>
                 </form>
             ) : (
+                // ============================
+                // INVOICE PREVIEW
+                // ============================
                 <Card
                     sx={{
                         p: 4,
-                        maxWidth: 500,
+                        maxWidth: 600,
                         width: "100%",
                         backgroundColor: isDark ? "#1e293b" : "#f9fafb",
                         color: isDark ? "white" : "black",
                         border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
-                        borderRadius: 2,
-                        boxShadow: "sm",
+                        borderRadius: 3,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                 >
+                    {/* Title */}
                     <Typography
                         variant="h6"
                         sx={{
                             fontWeight: "bold",
-                            mb: 2,
-                            borderBottom: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                            mb: 3,
+                            borderBottom: `2px solid ${isDark ? "#334155" : "#e5e7eb"}`,
                             pb: 1,
+                            textAlign: "center",
+                            letterSpacing: 1,
                         }}
                     >
-                        Invoice Preview
+                        📦 Stock Invoice Preview
                     </Typography>
 
-                    <Box className="space-y-2 text-sm">
-                        <Box className="flex justify-between">
-                            <Typography fontWeight={500}>Supplier:</Typography>
-                            <Typography>{invoiceData.supplierName}</Typography>
-                        </Box>
-                        <Box className="flex justify-between">
-                            <Typography fontWeight={500}>Product:</Typography>
-                            <Typography>
-                                {selectedProduct?.name} ({selectedProduct?.category})
-                            </Typography>
-                        </Box>
-                        <Box className="flex justify-between">
-                            <Typography fontWeight={500}>Quantity:</Typography>
-                            <Typography>
-                                {invoiceData.quantity} {unit}
-                            </Typography>
-                        </Box>
-                        <Box className="flex justify-between">
-                            <Typography fontWeight={500}>Price:</Typography>
-                            <Typography>Rs {invoiceData.price}</Typography>
-                        </Box>
-                        <Divider sx={{ my: 1 }} />
-                        <Box className="flex justify-between font-bold">
-                            <Typography>Total:</Typography>
-                            <Typography>Rs {invoiceData.quantity * invoiceData.price}</Typography>
-                        </Box>
+                    {/* Supplier */}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            mb: 3,
+                            fontSize: "0.95rem",
+                        }}
+                    >
+                        <Typography fontWeight={600}>Supplier:</Typography>
+                        <Typography>{invoiceData.supplierName}</Typography>
                     </Box>
 
-                    <Box className="flex gap-3 mt-4">
+                    {/* Product Table */}
+                    <Box
+                        sx={{
+                            overflowX: "auto",
+                            borderRadius: 2,
+                            border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                        }}
+                    >
+                        <table
+                            style={{
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                fontSize: "0.9rem",
+                            }}
+                        >
+                            <thead>
+                                <tr
+                                    style={{
+                                        backgroundColor: isDark ? "#334155" : "#f3f4f6",
+                                        textAlign: "left",
+                                    }}
+                                >
+                                    <th style={{ padding: "8px 12px" }}>Product</th>
+                                    <th style={{ padding: "8px 12px" }}>Category</th>
+                                    <th style={{ padding: "8px 12px" }}>Qty</th>
+                                    <th style={{ padding: "8px 12px" }}>Unit</th>
+                                    <th style={{ padding: "8px 12px" }}>
+                                        Rate (Per {unit})
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    style={{
+                                        borderBottom: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
+                                    }}
+                                >
+                                    <td style={{ padding: "8px 12px" }}>
+                                        {selectedProduct?.name}
+                                    </td>
+                                    <td style={{ padding: "8px 12px" }}>
+                                        {selectedProduct?.category}
+                                    </td>
+                                    <td style={{ padding: "8px 12px" }}>
+                                        {invoiceData.quantity}
+                                    </td>
+                                    <td style={{ padding: "8px 12px" }}>{unit}</td>
+                                    <td style={{ padding: "8px 12px" }}>
+                                        Rs {invoiceData.price}
+                                    </td>
+                                </tr>
+                                <tr
+                                    style={{
+                                        fontWeight: "bold",
+                                        backgroundColor: isDark ? "#1e293b" : "#f9fafb",
+                                    }}
+                                >
+                                    <td colSpan={4} style={{ padding: "8px 12px" }}>
+                                        Total
+                                    </td>
+                                    <td colSpan={1} style={{ padding: "8px 12px" }}>
+                                        Rs {invoiceData.quantity * invoiceData.price}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </Box>
+
+                    {/* Action Buttons */}
+                    <Box className="flex gap-3 mt-6">
                         <Button
                             variant="outlined"
                             fullWidth
+                            sx={{
+                                borderColor: isDark ? "#64748b" : "#ccc",
+                                color: isDark ? "white" : "black",
+                                "&:hover": {
+                                    backgroundColor: isDark ? "#334155" : "#f3f4f6",
+                                },
+                            }}
                             onClick={() => setInvoiceData(null)}
                         >
                             Back to Edit
@@ -293,11 +389,18 @@ export default function AddStock() {
                                 reset();
                                 setInvoiceData(null);
                             }}
+                            sx={{
+                                backgroundColor: isDark ? "#2563eb" : undefined,
+                                "&:hover": {
+                                    backgroundColor: isDark ? "#1d4ed8" : undefined,
+                                },
+                            }}
                         >
                             Proceed
                         </Button>
                     </Box>
                 </Card>
+
             )}
         </Box>
     );

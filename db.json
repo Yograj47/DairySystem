@@ -63,6 +63,14 @@
       "saleRate": 500,
       "unit": "kg",
       "category": "Ice Cream"
+    },
+    {
+      "id": "17da",
+      "name": "Strawberry Falvour Yogurt",
+      "purchaseRate": 60,
+      "saleRate": 150,
+      "unit": "ltr",
+      "category": "Yogurt"
     }
   ],
   "stock": [
@@ -76,9 +84,9 @@
     {
       "id": "64bf",
       "productId": "d640",
-      "total": 50,
+      "total": 310,
       "sold": 2,
-      "remaining": 48
+      "remaining": 294
     },
     {
       "id": "ce20",
@@ -126,6 +134,14 @@
       "sold": 0,
       "remaining": 20,
       "status": "out of stock"
+    },
+    {
+      "id": "1a4b",
+      "productId": "17da",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
     }
   ],
   "purchases": [
@@ -160,6 +176,62 @@
       "quantity": 20,
       "price": 1000,
       "date": "2025-08-25T00:00:00.000Z"
+    },
+    {
+      "id": "6ac1",
+      "supplierName": "Jack Dai",
+      "productId": "d640",
+      "quantity": 30,
+      "price": 30,
+      "date": "2025-08-26T00:00:00.000Z"
+    },
+    {
+      "id": "656b",
+      "supplierName": "Jack Dai",
+      "productId": "d640",
+      "quantity": 30,
+      "price": 30,
+      "date": "2025-08-26T00:00:00.000Z"
+    },
+    {
+      "id": "fe3d",
+      "supplierName": "Test Dai",
+      "productId": "d640",
+      "quantity": 40,
+      "price": 30,
+      "date": "2025-08-27T00:00:00.000Z"
+    },
+    {
+      "id": "4ad3",
+      "supplierName": "Tester Dai",
+      "productId": "d640",
+      "quantity": 40,
+      "price": 30,
+      "date": "2025-08-27T00:00:00.000Z"
+    },
+    {
+      "id": "5d27",
+      "supplierName": "Tester Dai",
+      "productId": "d640",
+      "quantity": 40,
+      "price": 30,
+      "date": "2025-08-27T00:00:00.000Z"
+    },
+    {
+      "id": "d46e",
+      "supplierName": "Tester Dai",
+      "productId": "d640",
+      "quantity": 40,
+      "price": 30,
+      "date": "2025-08-27T00:00:00.000Z"
+    },
+    {
+      "id": "a6e7",
+      "supplierName": "Tester Dai",
+      "productId": "d640",
+      "quantity": 40,
+      "price": 30,
+      "date": "2025-08-27T00:00:00.000Z"
     }
   ],
   "sales": [

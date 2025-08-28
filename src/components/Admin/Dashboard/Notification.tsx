@@ -1,4 +1,4 @@
-import { useDarkMode } from "../../context/DarkMode"
+import { useDarkMode } from "../../hook/DarkMode"
 
 function Notification() {
     const { isDark } = useDarkMode()

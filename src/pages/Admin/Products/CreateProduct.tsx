@@ -16,11 +16,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "../../../components/context/DarkMode";
+import { useDarkMode } from "../../../components/hook/DarkMode";
+import { Edit } from "lucide-react";
 
 const ProductSchema = z.object({
     name: z.string().min(3, { message: "Product name is required" }),
-    purchaseRate: z.coerce.number().positive("Purchase rate must be > 0"),
+    costPrice: z.coerce.number().positive(" must be > 0"),
     saleRate: z.coerce.number().positive("Sale rate must be > 0"),
     unit: z.string().min(1, "Unit is required"),
     category: z.string().min(1, "Category is required"),
@@ -42,7 +43,7 @@ function CreateProduct() {
         resolver: zodResolver(ProductSchema) as Resolver<ProductData>,
         defaultValues: {
             name: "",
-            purchaseRate: 0,
+            costPrice: 0,
             saleRate: 0,
             unit: "",
             category: "",
@@ -142,89 +143,57 @@ function CreateProduct() {
                                                         borderColor: isDark ? "#555" : "#ccc",
                                                     },
                                                     "&:hover fieldset": {
-                                                        borderColor: isDark ? "#888" : "#666",
+                                                        borderColor: isDark ? "white" : "#666",
                                                     },
                                                     "&.Mui-focused fieldset": {
-                                                        borderColor: isDark ? "#90caf9" : "#1976d2",
+                                                        borderColor: isDark ? "white" : "#1976d2",
                                                     },
                                                 },
-                                                "& .MuiFormHelperText-root": {
-                                                    color: isDark ? "#f87171" : "#d32f2f", // error text
+                                                "&:hover .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
                                                 },
                                             }}
                                         />
                                     )}
                                 />
 
-                                {/* Purchase Rate + Unit */}
-                                <Box className="flex gap-4 items-center">
-                                    <Controller
-                                        name="purchaseRate"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <TextField
-                                                {...field}
-                                                label="Purchase Rate"
-                                                type="number"
-                                                placeholder="eg. 100"
-                                                error={!!errors.purchaseRate}
-                                                helperText={errors.purchaseRate?.message}
-                                                fullWidth
-                                                sx={{
-                                                    "& .MuiInputBase-input": {
-                                                        color: isDark ? "white" : "black",
-                                                    },
-                                                    "& .MuiInputLabel-root": {
-                                                        color: isDark ? "white" : "gray",
-                                                    },
-                                                    "& .MuiOutlinedInput-root fieldset": {
+                                {/* Cost Price (Purchase Rate) */}
+                                <Controller
+                                    name="costPrice"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField
+                                            {...field}
+                                            label="Cost Price"
+                                            type="number"
+                                            placeholder="e.g. 100"
+                                            error={!!errors.costPrice}
+                                            helperText={errors.costPrice?.message}
+                                            fullWidth
+                                            sx={{
+                                                "& .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: isDark ? "white" : "gray",
+                                                },
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": {
                                                         borderColor: isDark ? "#555" : "#ccc",
                                                     },
-                                                }}
-                                            />
-                                        )}
-                                    />
-
-                                    <Typography
-                                        variant="body1"
-                                        sx={{ color: isDark ? "white" : "black" }}
-                                    >
-                                        Per
-                                    </Typography>
-
-                                    <FormControl
-                                        fullWidth
-                                        error={!!errors.unit}
-                                        sx={{
-                                            "& .MuiInputLabel-root": {
-                                                color: isDark ? "white" : "gray",
-                                            },
-                                            "& .MuiOutlinedInput-root .MuiSelect-select": {
-                                                color: isDark ? "white" : "black",
-                                            },
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: isDark ? "#555" : "#ccc",
-                                            },
-                                            "& .MuiSvgIcon-root": {
-                                                color: isDark ? "#fff" : "#ccc",
-                                            },
-                                        }}
-                                    >
-                                        <InputLabel id="unit-label">Unit</InputLabel>
-                                        <Controller
-                                            name="unit"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Select {...field} label="Unit" labelId="unit-label">
-                                                    <MenuItem value="ltr">Litre</MenuItem>
-                                                    <MenuItem value="kg">Kg</MenuItem>
-                                                    <MenuItem value="piece">Piece</MenuItem>
-                                                    <MenuItem value="packet">Packet</MenuItem>
-                                                </Select>
-                                            )}
-                                        />
-                                    </FormControl>
-                                </Box>
+                                                    "&:hover fieldset": {
+                                                        borderColor: isDark ? "white" : "#666",
+                                                    },
+                                                    "&.Mui-focused fieldset": {
+                                                        borderColor: isDark ? "white" : "#1976d2",
+                                                    },
+                                                },
+                                                "&:hover .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
+                                                },
+                                            }} />
+                                    )}
+                                />
 
                                 {/* Sale Rate */}
                                 <Controller
@@ -246,13 +215,64 @@ function CreateProduct() {
                                                 "& .MuiInputLabel-root": {
                                                     color: isDark ? "white" : "gray",
                                                 },
-                                                "& .MuiOutlinedInput-root fieldset": {
-                                                    borderColor: isDark ? "#555" : "#ccc",
+                                                "& .MuiOutlinedInput-root": {
+                                                    "& fieldset": {
+                                                        borderColor: isDark ? "#555" : "#ccc",
+                                                    },
+                                                    "&:hover fieldset": {
+                                                        borderColor: isDark ? "white" : "#666",
+                                                    },
+                                                    "&.Mui-focused fieldset": {
+                                                        borderColor: isDark ? "white" : "#1976d2",
+                                                    },
+                                                },
+                                                "&:hover .MuiInputBase-input": {
+                                                    color: isDark ? "white" : "black",
                                                 },
                                             }}
                                         />
                                     )}
                                 />
+
+                                {/* Unit */}
+                                <FormControl
+                                    fullWidth
+                                    error={!!errors.unit}
+                                    sx={{
+                                        "& .MuiInputLabel-root": {
+                                            color: isDark ? "white" : "gray",
+                                        },
+                                        "& .MuiOutlinedInput-root .MuiSelect-select": {
+                                            color: isDark ? "white" : "black",
+                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: isDark ? "#555" : "#ccc",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: isDark ? "white" : "#666",
+                                        },
+                                        "&:hover .MuiSelect-select": {
+                                            color: isDark ? "white" : "black",
+                                        },
+                                        "& .MuiSvgIcon-root": {
+                                            color: isDark ? "#fff" : "#ccc",
+                                        },
+                                    }}
+                                >
+                                    <InputLabel id="unit-label">Unit</InputLabel>
+                                    <Controller
+                                        name="unit"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select {...field} label="Unit" labelId="unit-label">
+                                                <MenuItem value="ltr">Litre</MenuItem>
+                                                <MenuItem value="kg">Kg</MenuItem>
+                                                <MenuItem value="piece">Piece</MenuItem>
+                                                <MenuItem value="packet">Packet</MenuItem>
+                                            </Select>
+                                        )}
+                                    />
+                                </FormControl>
 
                                 {/* Category */}
                                 <FormControl
@@ -267,6 +287,12 @@ function CreateProduct() {
                                         },
                                         "& .MuiOutlinedInput-notchedOutline": {
                                             borderColor: isDark ? "#555" : "#ccc",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: isDark ? "white" : "#666",
+                                        },
+                                        "&:hover .MuiSelect-select": {
+                                            color: isDark ? "white" : "black",
                                         },
                                         "& .MuiSvgIcon-root": {
                                             color: isDark ? "#fff" : "#ccc",
@@ -297,14 +323,8 @@ function CreateProduct() {
                                     variant="contained"
                                     color="primary"
                                     disabled={isSubmitting}
-                                    sx={{
-                                        backgroundColor: isDark ? "#2563eb" : undefined,
-                                        "&:hover": {
-                                            backgroundColor: isDark ? "#1d4ed8" : undefined,
-                                        },
-                                    }}
                                 >
-                                    {isSubmitting ? "Preparing..." : "Preview Invoice"}
+                                    {isSubmitting ? "Preparing..." : "Preview"}
                                 </Button>
                             </form>
                         </>
@@ -317,8 +337,6 @@ function CreateProduct() {
                                     backgroundColor: isDark ? "#1e293b" : "#f9fafb",
                                     color: isDark ? "white" : "black",
                                     border: `1px solid ${isDark ? "#334155" : "#e5e7eb"}`,
-                                    borderRadius: 2,
-                                    boxShadow: "sm",
                                 }}
                             >
                                 <Typography
@@ -330,31 +348,31 @@ function CreateProduct() {
                                         pb: 1,
                                     }}
                                 >
-                                    Invoice Preview
+                                    Product Detail Preview
                                 </Typography>
 
                                 <Box className="space-y-2 text-sm">
                                     <Box className="flex justify-between">
-                                        <Typography fontWeight="500">Name:</Typography>
+                                        <Typography fontWeight="600">Name:</Typography>
                                         <Typography>{previewData.name}</Typography>
                                     </Box>
 
                                     <Box className="flex justify-between">
-                                        <Typography fontWeight="500">Purchase Rate:</Typography>
+                                        <Typography fontWeight="600">Cost Price:</Typography>
                                         <Typography>
-                                            {previewData.purchaseRate} / {previewData.unit}
+                                            {previewData.costPrice} / {previewData.unit}
                                         </Typography>
                                     </Box>
 
                                     <Box className="flex justify-between">
-                                        <Typography fontWeight="500">Sale Rate:</Typography>
+                                        <Typography fontWeight="600">Sale Rate:</Typography>
                                         <Typography>
                                             {previewData.saleRate} / {previewData.unit}
                                         </Typography>
                                     </Box>
 
                                     <Box className="flex justify-between">
-                                        <Typography fontWeight="500">Category:</Typography>
+                                        <Typography fontWeight="600">Category:</Typography>
                                         <Typography>{previewData.category}</Typography>
                                     </Box>
                                 </Box>
@@ -365,7 +383,7 @@ function CreateProduct() {
                                         color="inherit"
                                         onClick={() => setPreviewData(null)}
                                     >
-                                        Back to Edit
+                                        <Edit className="mr-2" />  Back to Edit
                                     </Button>
                                     <Button
                                         variant="contained"

@@ -6,7 +6,7 @@ import type { IOverview, IStock } from "../../../utils/interface/Stock";
 import type { IProduct } from "../../../utils/interface/Product";
 import { useProduct } from "../../../components/hook/ProductFetch";
 import { useStock } from "../../../components/hook/StockFetch";
-import { useDarkMode } from "../../../components/context/DarkMode";
+import { useDarkMode } from "../../../components/hook/DarkMode";
 
 export default function Stock() {
     const [search, setSearch] = useState("");

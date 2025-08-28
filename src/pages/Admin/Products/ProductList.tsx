@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { paginate } from "../../../utils/Pagination";
 import type { IProduct } from "../../../utils/interface/Product";
 import { useProduct } from "../../../components/hook/ProductFetch";
-import { useDarkMode } from "../../../components/context/DarkMode";
+import { useDarkMode } from "../../../components/hook/DarkMode";
 
 function ProductList() {
     const [search, setSearch] = useState<string>("");

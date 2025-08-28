@@ -11,7 +11,7 @@ import Stock from "./pages/Admin/Inventory/Stock";
 import Sale from "./pages/Admin/Inventory/Sale";
 import Report from "./pages/Admin/Report";
 import AddStock from "./pages/Admin/Inventory/AddStock";
-import { useDarkMode } from "./components/context/DarkMode";
+import { useDarkMode } from "./components/hook/DarkMode";
 
 function App() {
   const [isOpen, setIsOpen] = useState<boolean>(true);

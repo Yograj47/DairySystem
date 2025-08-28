@@ -1,6 +1,6 @@
 import { Bell, Moon, Sun, X } from "lucide-react";
 import pp from "../../assets/pp.jpg"
-import { useDarkMode } from "../context/DarkMode";
+import { useDarkMode } from "../hook/DarkMode";
 import { useState } from "react";
 
 function Navbar() {

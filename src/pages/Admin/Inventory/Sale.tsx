@@ -1,10 +1,9 @@
-// import SaleForm from "../../../components/Admin/Product/SaleForm";
-function Sale() {
+import SaleForm from "../../../components/Admin/Inventory/SaleForm"
 
+function Sale() {
     return (
-        // < SaleForm />
-        <p>Hello</p>
-    );
+        <SaleForm />
+    )
 }
 
-export default Sale;
+export default Sale
