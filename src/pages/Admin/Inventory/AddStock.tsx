@@ -9,58 +9,17 @@ import {
     Typography,
     Card,
     FormHelperText,
-    Divider,
 } from "@mui/material";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProduct } from "../../../components/hook/ProductFetch";
 import { useStock } from "../../../components/hook/StockFetch";
 import { useDarkMode } from "../../../components/hook/DarkMode";
+import { darkTextFieldStyles } from "../../../utils/TextFieldStyle";
+import { AddStockSchema, type IAddStock } from "../../../utils/interface/Stock";
 
-// ✅ Zod schema
-const AddStockSchema = z.object({
-    supplierName: z.string().min(2, "Supplier name is required"),
-    productId: z.string().min(1, "Product is required"),
-    quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-    price: z.coerce.number().min(1, "Price must be greater than 0"),
-    date: z.coerce.date(),
-});
-
-type IAddStock = z.infer<typeof AddStockSchema>;
-
-// ✅ Reusable style helpers
-const darkTextFieldStyles = (isDark: boolean) => ({
-    "& .MuiInputBase-input": { color: isDark ? "white" : "black" },
-    "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-    "& .MuiOutlinedInput-root": {
-        "& fieldset": { borderColor: isDark ? "#555" : "#ccc" },
-        "&:hover fieldset": { borderColor: isDark ? "white" : "#666" },
-        "&.Mui-focused fieldset": { borderColor: isDark ? "white" : "#1976d2" },
-    },
-    "& .MuiFormHelperText-root": {
-        color: isDark ? "#f87171" : "#d32f2f",
-    },
-});
-
-const darkSelectStyles = (isDark: boolean) => ({
-    "& .MuiInputLabel-root": { color: isDark ? "white" : "gray" },
-    "& .MuiOutlinedInput-root .MuiSelect-select": {
-        color: isDark ? "white" : "black",
-    },
-    "& .MuiOutlinedInput-notchedOutline": {
-        borderColor: isDark ? "#555" : "#ccc",
-    },
-    "&:hover .MuiOutlinedInput-notchedOutline": {
-        borderColor: isDark ? "white" : "#666",
-    },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-        borderColor: isDark ? "white" : "#1976d2",
-    },
-    "& .MuiSvgIcon-root": { color: isDark ? "#fff" : "#ccc" },
-});
 
 export default function AddStock() {
     const { isDark } = useDarkMode();
@@ -110,7 +69,7 @@ export default function AddStock() {
     // Submit logic
     const onSubmit = async (data: IAddStock) => {
         const stockItem = stockData.find((s) => s.productId === productId);
-        setInvoiceData(data); // show preview immediately
+        setInvoiceData(data);
 
         try {
             await axios.post("http://localhost:5000/purchases", data);
@@ -156,7 +115,7 @@ export default function AddStock() {
                     <FormControl
                         fullWidth
                         error={!!errors.productId}
-                        sx={darkSelectStyles(isDark)}
+                        sx={darkTextFieldStyles(isDark)}
                     >
                         <InputLabel id="product-label">Product</InputLabel>
                         <Controller
@@ -168,14 +127,7 @@ export default function AddStock() {
                                         <MenuItem
                                             key={p.id}
                                             value={p.id}
-                                            sx={{
-                                                color: isDark ? "white" : "black",
-                                                "&:hover": {
-                                                    backgroundColor: isDark
-                                                        ? "#334155"
-                                                        : "#f0f0f0",
-                                                },
-                                            }}
+                                            sx={darkTextFieldStyles(isDark)}
                                         >
                                             {p.name}
                                         </MenuItem>
@@ -207,19 +159,7 @@ export default function AddStock() {
                             disabled
                             error={!!errors.price}
                             helperText={errors.price?.message}
-                            sx={{
-                                ...darkTextFieldStyles(isDark),
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                    color: isDark
-                                        ? "rgba(255,255,255,0.6)"
-                                        : "rgba(0,0,0,0.6)",
-                                },
-                                "& .MuiInputLabel-root.Mui-disabled": {
-                                    color: isDark
-                                        ? "rgba(255,255,255,0.6)"
-                                        : "rgba(0,0,0,0.6)",
-                                },
-                            }}
+                            sx={darkTextFieldStyles(isDark)}
                         />
 
                         <Typography sx={{ color: isDark ? "white" : "black" }}>

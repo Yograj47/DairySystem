@@ -23,7 +23,7 @@ function Navbar() {
                         {isDark ? <Moon size={16} /> : <Sun size={16} />}
                     </span>
                 </button>
-                <button className={`p-2 rounded-full text-white ${isDark ? " bg-indigo-600 hover:bg-indigo-400" : "bg-gray-500 hover:bg-gray-700"} cursor-pointer transition-all duration-150`} onClick={() => setNotfiyOpen(true)}>
+                <button className={`p-2 rounded-full text-white ${isDark ? " bg-indigo-600 hover:bg-indigo-400" : "bg-gray-500 hover:bg-gray-700"} cursor-pointer transition-all duration-150`} onClick={() => alert("Generic Button")}>
                     <Bell className="w-5 h-5" />
                 </button>
             </div>

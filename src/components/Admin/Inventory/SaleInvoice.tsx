@@ -1,17 +1,9 @@
-import {
-    Box,
-    Typography,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Divider,
-    Button,
-} from "@mui/material";
+"use client";
+
+import { useRef, useState } from "react";
+import { useReactToPrint } from "react-to-print";
 import type { ISale } from "../../../utils/interface/Sale";
+import { Button } from "@mui/material";
 
 const COMPANY_INFO = {
     name: "Dairy Production",
@@ -21,107 +13,146 @@ const COMPANY_INFO = {
 
 interface InvoiceProps {
     data: ISale;
-    onBack: () => void; // Callback to go back to form
+    onBack: () => void;
+    onSave: (data: ISale) => Promise<void>;
 }
 
-export function Invoice({ data, onBack }: InvoiceProps) {
+export function Invoice({ data, onBack, onSave }: InvoiceProps) {
+    const [isSaved, setIsSaved] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const contentRef = useRef<HTMLDivElement>(null);
+
     const subtotal = data.products.reduce((sum, p) => sum + p.total, 0);
+    const tax = subtotal * 0.0;
+    const grandTotal = subtotal + tax;
+
+    const handlePrint = useReactToPrint({
+        contentRef,
+        documentTitle: `Invoice-${Date.now()}`,
+    });
+
+    const handleCheckout = async () => {
+        try {
+            setLoading(true);
+            await onSave(data);
+            setIsSaved(true);
+            setTimeout(() => handlePrint?.(), 500);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <Box
-            sx={{
-                width: "100%",
-                maxWidth: "800px",
-                margin: "0 auto",
-                p: 4,
-                bgcolor: "white",
-                color: "black",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                boxShadow: 2,
-                fontFamily: "Arial, sans-serif",
-            }}
-        >
-            {/* Company Header */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-                <Box>
-                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        {COMPANY_INFO.name}
-                    </Typography>
-                    <Typography>{COMPANY_INFO.location}</Typography>
-                    <Typography>{COMPANY_INFO.email}</Typography>
-                </Box>
-                <Box textAlign="right">
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                        Invoice
-                    </Typography>
-                    <Typography>
-                        Date: {new Date(data.date).toLocaleDateString()}
-                    </Typography>
-                    <Typography>Invoice No: INV-{Date.now()}</Typography>
-                </Box>
-            </Box>
+        <div className="h-[90vh] w-full flex flex-col justify-center items-center">
+            {/* Invoice Box */}
+            <div
+                ref={contentRef}
+                className="max-w-3xl w-full mx-auto bg-white text-black p-10 shadow-lg border border-gray-400 
+                print:shadow-none print:border-0 font-serif"
+            >
+                {/* Header */}
+                <div className="flex justify-between items-start mb-8">
+                    <div>
+                        <h1 className="text-3xl font-extrabold uppercase tracking-wide">{COMPANY_INFO.name}</h1>
+                        <p className="text-sm">{COMPANY_INFO.location}</p>
+                        <p className="text-sm">{COMPANY_INFO.email}</p>
+                    </div>
+                    <div className="text-right">
+                        <h2 className="text-2xl font-bold uppercase">Invoice</h2>
+                        <p className="text-sm">Date: {new Date(data.date).toLocaleDateString()}</p>
+                        <p className="text-sm font-semibold">Invoice No: INV-{Date.now()}</p>
+                    </div>
+                </div>
 
-            <Divider sx={{ my: 2 }} />
+                <hr className="my-6 border-gray-500" />
 
-            {/* Customer Info */}
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                    Bill To:
-                </Typography>
-                <Typography>{data.customerName || "N/A"}</Typography>
-            </Box>
+                {/* Customer Info */}
+                <div className="mb-6">
+                    <h3 className="font-semibold">Bill To:</h3>
+                    <p className="ml-2 font-medium">{data.customerName || "N/A"}</p>
+                </div>
 
-            {/* Items Table */}
-            <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
-                <Table size="small">
-                    <TableHead>
-                        <TableRow sx={{ bgcolor: "#f3f4f6" }}>
-                            <TableCell>Description</TableCell>
-                            <TableCell align="center">Qty</TableCell>
-                            <TableCell align="center">Unit</TableCell>
-                            <TableCell align="right">Rate</TableCell>
-                            <TableCell align="right">Total</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
+                {/* Items Table */}
+                <table className="w-full border border-black text-sm">
+                    <thead className="bg-gray-100 print:bg-white">
+                        <tr className="uppercase">
+                            <th className="border border-black px-3 py-2 text-left">SN</th>
+                            <th className="border border-black px-3 py-2 text-left">Product</th>
+                            <th className="border border-black px-3 py-2 text-center">Qty</th>
+                            <th className="border border-black px-3 py-2 text-center">Unit</th>
+                            <th className="border border-black px-3 py-2 text-right">Rate</th>
+                            <th className="border border-black px-3 py-2 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {data.products.map((p, i) => (
-                            <TableRow key={i}>
-                                <TableCell>{p.name}</TableCell>
-                                <TableCell align="center">{p.qty}</TableCell>
-                                <TableCell align="center">{p.unit}</TableCell>
-                                <TableCell align="right">{p.rate.toFixed(2)}</TableCell>
-                                <TableCell align="right">{p.total.toFixed(2)}</TableCell>
-                            </TableRow>
+                            <tr key={i} className="odd:bg-white even:bg-gray-50 print:even:bg-white">
+                                <td className="border border-black px-3 py-2 text-center">{i + 1}</td>
+                                <td className="border border-black px-3 py-2">{p.name}</td>
+                                <td className="border border-black px-3 py-2 text-center">{p.qty}</td>
+                                <td className="border border-black px-3 py-2 text-center">{p.unit}</td>
+                                <td className="border border-black px-3 py-2 text-right">{p.rate.toFixed(2)}</td>
+                                <td className="border border-black px-3 py-2 text-right">{p.total.toFixed(2)}</td>
+                            </tr>
                         ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                    </tbody>
+                </table>
 
-            {/* Total Summary */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-                <Box sx={{ width: "250px" }}>
-                    <Divider sx={{ mb: 1 }} />
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            fontWeight: "bold",
-                            fontSize: "1.1rem",
-                        }}
+                {/* Totals */}
+                <div className="flex justify-end mt-8">
+                    <div className="w-72 space-y-2 text-sm">
+                        <div className="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>Tax:</span>
+                            <span className="font-medium">Rs. {tax.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between font-bold border-t border-dashed border-black pt-2 text-lg">
+                            <span>Grand Total:</span>
+                            <span>Rs. {grandTotal.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-12 text-center text-xs text-gray-700">
+                    <p>Thank you for your business!</p>
+                    <p>Payment due within 7 days.</p>
+                </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-3 mt-8 print:hidden">
+                {!isSaved ? (
+                    <>
+                        <Button
+                            variant="outlined"
+                            onClick={onBack}
+                        >
+                            Back to Edit
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="inherit"
+                            onClick={handleCheckout}
+                            disabled={loading}
+                        >
+                            {loading ? "Processing..." : "Checkout"}
+                        </Button>
+                    </>
+                ) : (
+                    <Button
+                        variant="contained"
+                        color="inherit"
+                        onClick={() => handlePrint?.()}
                     >
-                        <span>Total</span>
-                        <span>Rs. {subtotal.toFixed(2)}</span>
-                    </Box>
-                </Box>
-            </Box>
-
-            {/* Back Button */}
-            <Box sx={{ mt: 4, display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="outlined" onClick={onBack}>
-                    Back to Edit
-                </Button>
-            </Box>
-        </Box>
+                        Print Invoice
+                    </Button>
+                )}
+            </div>
+        </div>
     );
 }

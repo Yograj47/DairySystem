@@ -10,7 +10,7 @@ export const ProductSchema = z.object({
 });
 
 export const SaleSchema = z.object({
-    customerName: z.string(),
+    customerName: z.string().min(2, { message: "Customer name is required" }),
     date: z.coerce.date(),
     products: z.array(ProductSchema).nonempty(),
 });

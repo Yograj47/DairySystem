@@ -18,6 +18,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDarkMode } from "../../../components/hook/DarkMode";
 import { Edit } from "lucide-react";
+import { darkTextFieldStyles } from "../../../utils/TextFieldStyle";
 
 const ProductSchema = z.object({
     name: z.string().min(3, { message: "Product name is required" }),
@@ -131,28 +132,7 @@ function CreateProduct() {
                                             error={!!errors.name}
                                             helperText={errors.name?.message}
                                             fullWidth
-                                            sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: isDark ? "white" : "black",
-                                                },
-                                                "& .MuiInputLabel-root": {
-                                                    color: isDark ? "white" : "gray",
-                                                },
-                                                "& .MuiOutlinedInput-root": {
-                                                    "& fieldset": {
-                                                        borderColor: isDark ? "#555" : "#ccc",
-                                                    },
-                                                    "&:hover fieldset": {
-                                                        borderColor: isDark ? "white" : "#666",
-                                                    },
-                                                    "&.Mui-focused fieldset": {
-                                                        borderColor: isDark ? "white" : "#1976d2",
-                                                    },
-                                                },
-                                                "&:hover .MuiInputBase-input": {
-                                                    color: isDark ? "white" : "black",
-                                                },
-                                            }}
+                                            sx={darkTextFieldStyles(isDark)}
                                         />
                                     )}
                                 />
@@ -170,28 +150,8 @@ function CreateProduct() {
                                             error={!!errors.costPrice}
                                             helperText={errors.costPrice?.message}
                                             fullWidth
-                                            sx={{
-                                                "& .MuiInputBase-input": {
-                                                    color: isDark ? "white" : "black",
-                                                },
-                                                "& .MuiInputLabel-root": {
-                                                    color: isDark ? "white" : "gray",
-                                                },
-                                                "& .MuiOutlinedInput-root": {
-                                                    "& fieldset": {
-                                                        borderColor: isDark ? "#555" : "#ccc",
-                                                    },
-                                                    "&:hover fieldset": {
-                                                        borderColor: isDark ? "white" : "#666",
-                                                    },
-                                                    "&.Mui-focused fieldset": {
-                                                        borderColor: isDark ? "white" : "#1976d2",
-                                                    },
-                                                },
-                                                "&:hover .MuiInputBase-input": {
-                                                    color: isDark ? "white" : "black",
-                                                },
-                                            }} />
+                                            sx={darkTextFieldStyles(isDark)}
+                                        />
                                     )}
                                 />
 
@@ -238,26 +198,7 @@ function CreateProduct() {
                                 <FormControl
                                     fullWidth
                                     error={!!errors.unit}
-                                    sx={{
-                                        "& .MuiInputLabel-root": {
-                                            color: isDark ? "white" : "gray",
-                                        },
-                                        "& .MuiOutlinedInput-root .MuiSelect-select": {
-                                            color: isDark ? "white" : "black",
-                                        },
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: isDark ? "#555" : "#ccc",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: isDark ? "white" : "#666",
-                                        },
-                                        "&:hover .MuiSelect-select": {
-                                            color: isDark ? "white" : "black",
-                                        },
-                                        "& .MuiSvgIcon-root": {
-                                            color: isDark ? "#fff" : "#ccc",
-                                        },
-                                    }}
+                                    sx={darkTextFieldStyles(isDark)}
                                 >
                                     <InputLabel id="unit-label">Unit</InputLabel>
                                     <Controller
@@ -278,26 +219,7 @@ function CreateProduct() {
                                 <FormControl
                                     fullWidth
                                     error={!!errors.category}
-                                    sx={{
-                                        "& .MuiInputLabel-root": {
-                                            color: isDark ? "white" : "gray",
-                                        },
-                                        "& .MuiOutlinedInput-root .MuiSelect-select": {
-                                            color: isDark ? "white" : "black",
-                                        },
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: isDark ? "#555" : "#ccc",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: isDark ? "white" : "#666",
-                                        },
-                                        "&:hover .MuiSelect-select": {
-                                            color: isDark ? "white" : "black",
-                                        },
-                                        "& .MuiSvgIcon-root": {
-                                            color: isDark ? "#fff" : "#ccc",
-                                        },
-                                    }}
+                                    sx={darkTextFieldStyles(isDark)}
                                 >
                                     <InputLabel id="category-label">Category</InputLabel>
                                     <Controller
