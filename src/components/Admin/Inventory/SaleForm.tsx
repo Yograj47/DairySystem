@@ -14,10 +14,10 @@ import {
     IconButton,
 } from "@mui/material";
 import { useForm, Controller, type Resolver } from "react-hook-form";
-import { type ISale, type IProductSchema, SaleSchema } from "../../../utils/interface/Sale";
-import { useProduct } from "../../hook/ProductFetch";
+import { type ISale, type IProductSchema, SaleSchema } from "../../../interface/Sale";
+import { useProduct } from "../../../hook/ProductFetch";
 import { useState } from "react";
-import { useDarkMode } from "../../hook/DarkMode";
+import { useDarkMode } from "../../../hook/DarkMode";
 import { Delete } from "lucide-react";
 import { Invoice } from "./SaleInvoice";
 import { darkTextFieldStyles } from "../../../utils/TextFieldStyle";

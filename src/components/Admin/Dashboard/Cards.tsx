@@ -1,5 +1,5 @@
 import { ArrowDownward, ArrowUpward, ShoppingCart, Warehouse, LocalAtm } from "@mui/icons-material";
-import { useDarkMode } from "../../hook/DarkMode";
+import { useDarkMode } from "../../../hook/DarkMode";
 
 function Cards() {
     const { isDark } = useDarkMode();

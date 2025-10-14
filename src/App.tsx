@@ -11,7 +11,7 @@ import Stock from "./pages/Admin/Inventory/Stock";
 import Sale from "./pages/Admin/Inventory/Sale";
 import Report from "./pages/Admin/Report";
 import AddStock from "./pages/Admin/Inventory/AddStock";
-import { useDarkMode } from "./components/hook/DarkMode";
+import { useDarkMode } from "./hook/DarkMode";
 
 function App() {
   const [isOpen, setIsOpen] = useState<boolean>(true);
@@ -59,7 +59,7 @@ function App() {
       {/* Main content */}
       <main className="flex-1 flex flex-col h-screen">
         {/* Navbar 10% height */}
-        <div className="h-[10%]">
+        <div className="h-[10%] border border-zinc-600">
           <Navbar />
         </div>
 

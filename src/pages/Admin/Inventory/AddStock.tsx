@@ -14,11 +14,11 @@ import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useProduct } from "../../../components/hook/ProductFetch";
-import { useStock } from "../../../components/hook/StockFetch";
-import { useDarkMode } from "../../../components/hook/DarkMode";
+import { useProduct } from "../../../hook/ProductFetch";
+import { useStock } from "../../../hook/StockFetch";
+import { useDarkMode } from "../../../hook/DarkMode";
 import { darkTextFieldStyles } from "../../../utils/TextFieldStyle";
-import { AddStockSchema, type IAddStock } from "../../../utils/interface/Stock";
+import { AddStockSchema, type IAddStock } from "../../../interface/Stock";
 
 
 export default function AddStock() {

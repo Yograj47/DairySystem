@@ -1,5 +1,5 @@
 import axios from "axios"
-import type { IStock } from "../../utils/interface/Stock"
+import type { IStock } from "../interface/Stock"
 import { useQuery } from "@tanstack/react-query"
 
 const fetchStock = async (): Promise<IStock[]> => {

@@ -11,8 +11,8 @@ import {
     Legend,
     type ChartOptions,
 } from "chart.js";
-import { useDarkMode } from "../../hook/DarkMode";
-import { useSales } from "../../hook/SaleFetch";
+import { useDarkMode } from "../../../hook/DarkMode";
+import { useSales } from "../../../hook/SaleFetch";
 
 Chartjs.register(
     CategoryScale,

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useDarkMode } from "../../hook/DarkMode";
-import { useSales } from "../../hook/SaleFetch";
+import { useDarkMode } from "../../../hook/DarkMode";
+import { useSales } from "../../../hook/SaleFetch";
 import { paginate } from "../../../utils/Pagination";
 
 function RecentSaleTable() {

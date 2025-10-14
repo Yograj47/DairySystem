@@ -11,24 +11,15 @@ import {
     Card,
 } from "@mui/material";
 import { useForm, Controller, type Resolver } from "react-hook-form";
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useDarkMode } from "../../../components/hook/DarkMode";
+import { useDarkMode } from "../../../hook/DarkMode";
 import { Edit } from "lucide-react";
 import { darkTextFieldStyles } from "../../../utils/TextFieldStyle";
+import { ProductSchema, type ProductData } from "../../../interface/Product";
 
-const ProductSchema = z.object({
-    name: z.string().min(3, { message: "Product name is required" }),
-    costPrice: z.coerce.number().positive(" must be > 0"),
-    saleRate: z.coerce.number().positive("Sale rate must be > 0"),
-    unit: z.string().min(1, "Unit is required"),
-    category: z.string().min(1, "Category is required"),
-});
-
-type ProductData = z.infer<typeof ProductSchema>;
 
 function CreateProduct() {
     const { id: productId } = useParams();
@@ -45,7 +36,7 @@ function CreateProduct() {
         defaultValues: {
             name: "",
             costPrice: 0,
-            saleRate: 0,
+            basePrice: 0,
             unit: "",
             category: "",
         },
@@ -157,16 +148,16 @@ function CreateProduct() {
 
                                 {/* Sale Rate */}
                                 <Controller
-                                    name="saleRate"
+                                    name="basePrice"
                                     control={control}
                                     render={({ field }) => (
                                         <TextField
                                             {...field}
-                                            label="Sale Rate"
+                                            label="Base Price"
                                             type="number"
                                             placeholder="eg. 150"
-                                            error={!!errors.saleRate}
-                                            helperText={errors.saleRate?.message}
+                                            error={!!errors.basePrice}
+                                            helperText={errors.basePrice?.message}
                                             fullWidth
                                             sx={{
                                                 "& .MuiInputBase-input": {
@@ -289,7 +280,7 @@ function CreateProduct() {
                                     <Box className="flex justify-between">
                                         <Typography fontWeight="600">Sale Rate:</Typography>
                                         <Typography>
-                                            {previewData.saleRate} / {previewData.unit}
+                                            {previewData.basePrice} / {previewData.unit}
                                         </Typography>
                                     </Box>
 

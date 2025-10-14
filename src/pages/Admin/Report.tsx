@@ -12,7 +12,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import { useDarkMode } from "../../components/hook/DarkMode";
+import { useDarkMode } from "../../hook/DarkMode";
 
 
 // ----------------- Dummy Data -----------------

@@ -6,7 +6,9 @@
       "purchaseRate": 50,
       "saleRate": 60,
       "unit": "ltr",
-      "category": "Milk"
+      "category": "Milk",
+      "costPrice": 40,
+      "basePrice": 60
     },
     {
       "id": "d640",

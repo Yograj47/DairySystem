@@ -1,13 +1,13 @@
 import { Bell, Moon, Sun, X } from "lucide-react";
 import pp from "../../assets/pp.jpg"
-import { useDarkMode } from "../hook/DarkMode";
+import { useDarkMode } from "../../hook/DarkMode";
 import { useState } from "react";
 
 function Navbar() {
     const { isDark, toggleDark } = useDarkMode()
     const [isNotfiyOpen, setNotfiyOpen] = useState<boolean>(false);
     return (
-        <header className={`h-full w-full z-50 ${isDark ? "bg-[#24303f] text-whit" : "bg-white  text-black"} px-6 py-3 gap-12 flex justify-end items-center border-b-2 border-black/25 `}>
+        <header className={`h-full w-full z-50 ${isDark ? "bg-[#24303f] text-white" : "bg-white  text-black"} px-6 py-3 gap-12 flex justify-end items-center `}>
 
             {/* Other icons */}
             <div className="flex items-center gap-6">

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
-import type { ISale } from "../../../utils/interface/Sale";
+import type { ISale } from "../../../interface/Sale";
 import { Button } from "@mui/material";
 
 const COMPANY_INFO = {

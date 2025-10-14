@@ -3,9 +3,9 @@ import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { paginate } from "../../../utils/Pagination";
-import type { IProduct } from "../../../utils/interface/Product";
-import { useProduct } from "../../../components/hook/ProductFetch";
-import { useDarkMode } from "../../../components/hook/DarkMode";
+import type { IProduct } from "../../../interface/Product";
+import { useProduct } from "../../../hook/ProductFetch";
+import { useDarkMode } from "../../../hook/DarkMode";
 
 function ProductList() {
     const [search, setSearch] = useState<string>("");

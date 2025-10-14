@@ -2,11 +2,11 @@ import { TextField } from "@mui/material";
 import { useState } from "react";
 import { paginate } from "../../../utils/Pagination";
 import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
-import type { IOverview, IStock } from "../../../utils/interface/Stock";
-import type { IProduct } from "../../../utils/interface/Product";
-import { useProduct } from "../../../components/hook/ProductFetch";
-import { useStock } from "../../../components/hook/StockFetch";
-import { useDarkMode } from "../../../components/hook/DarkMode";
+import type { IOverview, IStock } from "../../../interface/Stock";
+import type { IProduct } from "../../../interface/Product";
+import { useProduct } from "../../../hook/ProductFetch";
+import { useStock } from "../../../hook/StockFetch";
+import { useDarkMode } from "../../../hook/DarkMode";
 
 export default function Stock() {
     const [search, setSearch] = useState("");
