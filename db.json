@@ -73,6 +73,14 @@
       "saleRate": 150,
       "unit": "ltr",
       "category": "Yogurt"
+    },
+    {
+      "id": "404f",
+      "name": " Params Cheese",
+      "costPrice": 500,
+      "basePrice": 600,
+      "unit": "kg",
+      "category": "Cheese"
     }
   ],
   "stock": [
@@ -140,6 +148,14 @@
     {
       "id": "1a4b",
       "productId": "17da",
+      "total": 0,
+      "sold": 0,
+      "remaining": 0,
+      "status": "out of stock"
+    },
+    {
+      "id": "c3ee",
+      "productId": "404f",
       "total": 0,
       "sold": 0,
       "remaining": 0,

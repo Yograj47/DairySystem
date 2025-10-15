@@ -6,7 +6,6 @@ import Dashboard from "./pages/Admin/Dashboard";
 import ProductList from "./pages/Admin/Products/ProductList";
 import { Route, Routes } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
-import CreateProduct from "./pages/Admin/Products/CreateProduct";
 import Stock from "./pages/Admin/Inventory/Stock";
 import Sale from "./pages/Admin/Inventory/Sale";
 import Report from "./pages/Admin/Report";
@@ -59,7 +58,7 @@ function App() {
       {/* Main content */}
       <main className="flex-1 flex flex-col h-screen">
         {/* Navbar 10% height */}
-        <div className="h-[10%] border border-zinc-600">
+        <div className="h-[10%] ">
           <Navbar />
         </div>
 
@@ -71,9 +70,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
 
             {/* Products */}
-            <Route path="/products/list" element={<ProductList />} />
-            <Route path="/products/create" element={<CreateProduct />} />
-            <Route path="/products/:id/edit" element={<CreateProduct />} />
+            <Route path="/products/" element={<ProductList />} />
 
             {/* Inventory */}
             <Route path="/inventory/stock" element={<Stock />} />
@@ -89,6 +86,7 @@ function App() {
 
         </div>
       </main>
+
     </div>
   );
 }

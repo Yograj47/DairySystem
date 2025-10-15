@@ -30,11 +30,7 @@ function Sidebar({ isOpen }: SidebarProps) {
         {
             name: "Products",
             icon: <Box className={iconStyle} />,
-            path: "/products",
-            subMenu: [
-                { name: "Create", path: "/products/create" },
-                { name: "List", path: "/products/list" },
-            ],
+            path: "/products/"
         },
         {
             name: "Inventory",
