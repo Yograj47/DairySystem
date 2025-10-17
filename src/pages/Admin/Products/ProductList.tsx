@@ -6,9 +6,12 @@ import type { IProduct } from "../../../interface/Product";
 import { useProduct } from "../../../hook/ProductFetch";
 import { useDarkMode } from "../../../hook/DarkMode";
 import CreateProduct from "./CreateProductModal";
+import { Ellipsis } from "lucide-react";
+
 function ProductList() {
     const [search, setSearch] = useState<string>("");
     const [currPage, setCurrentPage] = useState(1);
+    const [actionOpen, setActionOpen] = useState<boolean>(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
     const [productModalOpen, setProductModalOpen] = useState<boolean>(false);
@@ -169,8 +172,9 @@ function ProductList() {
                                 <th className="px-2 py-2 text-left font-medium">ID</th>
                                 <th className="px-3 py-2 text-left font-medium">Name</th>
                                 <th className="px-3 py-2 text-left font-medium">Category</th>
-                                <th className="px-3 py-2 text-left font-medium">Purchase</th>
-                                <th className="px-3 py-2 text-left font-medium">Sale</th>
+                                <th className="px-3 py-2 text-left font-medium">Cost</th>
+                                <th className="px-3 py-2 text-left font-medium">Base</th>
+                                <th className="px-3 py-2 text-left font-medium"></th>
                             </tr>
                         </thead>
 
@@ -210,6 +214,17 @@ function ProductList() {
                                     </td>
                                     <td className="px-3 py-2">
                                         {product.saleRate} / {product.unit}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <Button onClick={() => setActionOpen(!actionOpen)}>
+                                            <Ellipsis />
+                                        </Button>
+                                        <div className={actionOpen ? "block" : "hidden"}>
+                                            {/* Placeholder for future action menu */}
+                                            <Button onClick={() => alert(`Actions for product ID: ${product.id}`)}>
+                                                Actions
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
