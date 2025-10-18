@@ -9,272 +9,301 @@ import CreateProduct from "./CreateProductModal";
 import { Ellipsis } from "lucide-react";
 
 function ProductList() {
-    const [search, setSearch] = useState<string>("");
-    const [currPage, setCurrentPage] = useState(1);
-    const [actionOpen, setActionOpen] = useState<boolean>(false);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
-    const [productModalOpen, setProductModalOpen] = useState<boolean>(false);
-    const { data: products, isLoading } = useProduct();
-    const { isDark } = useDarkMode();
+  const [search, setSearch] = useState<string>("");
+  const [currPage, setCurrentPage] = useState(1);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string | undefined>(
+    undefined
+  );
+  const [productModalOpen, setProductModalOpen] = useState<boolean>(false);
+  const { data: products, isLoading } = useProduct();
+  const { isDark } = useDarkMode();
 
-    const handleOpenModal = () => {
-        setProductModalOpen(true);
-    }
+  const handleOpenModal = () => setProductModalOpen(true);
 
-    const handleCloseModal = () => {
-        setProductModalOpen(false);
-        setSelectedProductId(undefined);
-    }
+  const handleCloseModal = () => {
+    setProductModalOpen(false);
+    setSelectedProductId(undefined);
+  };
 
-    const handleEditClick = () => {
-        setSelectedProductId(selectedIds[0]);
-        setProductModalOpen(true);
-    };
-    const dataPerPage = 12;
+  const toggleOpenMenu = (id: string) => {
+    setOpenMenuId((prev) => (prev === id ? null : id));
+  };
 
-    const filteredProducts = products
-        ? products.filter(
-            (product) =>
-                product.name.toLowerCase().includes(search.toLowerCase()) ||
-                product.category.toLowerCase().includes(search.toLowerCase())
-        )
-        : [];
+  const handleEditClick = (id: string) => {
+    setSelectedProductId(id);
+    setProductModalOpen(true);
+    setOpenMenuId(null);
+  };
 
-    const { items: currProducts, totalPages } = paginate<IProduct>({
-        items: filteredProducts,
-        currentPage: currPage,
-        itemsPerPage: dataPerPage,
-    });
+  const dataPerPage = 10;
 
-    const allSelected = currProducts.length > 0 && selectedIds.length === currProducts.length;
+  const filteredProducts = products
+    ? products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(search.toLowerCase()) ||
+          product.category.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
-    const toggleSelectAll = () => {
-        if (allSelected) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(currProducts.map((p) => p.id));
-        }
-    };
+  const { items: currProducts, totalPages } = paginate<IProduct>({
+    items: filteredProducts,
+    currentPage: currPage,
+    itemsPerPage: dataPerPage,
+  });
 
-    const toggleSelect = (id: string) => {
-        setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-        );
-    };
+  const allSelected =
+    currProducts.length > 0 && selectedIds.length === currProducts.length;
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-300">
-                Loading products...
-            </div>
-        );
-    }
+  const toggleSelectAll = () => {
+    if (allSelected) setSelectedIds([]);
+    else setSelectedIds(currProducts.map((p) => p.id));
+  };
 
-    return (
-        <>
-            <div
-                className={`h-full w-full p-0 flex flex-col border ${isDark ? "bg-[#1e293b] border-gray-700" : "bg-white border-gray-300"
-                    }`}
-            >
-                {/* Header */}
-                <div
-                    className={`w-full flex justify-between items-center p-3 border-b ${isDark ? "border-gray-700 bg-[#24303f]" : "border-gray-300 bg-gray-50"
-                        }`}
-                >
-                    {/* Search */}
-                    <div className="flex-1 mr-4">
-                        <TextField
-                            label="Search"
-                            type="text"
-                            placeholder="Search by name or category..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            fullWidth
-                            size="small"
-                            InputLabelProps={{
-                                style: { color: isDark ? "#cbd5e1" : undefined },
-                            }}
-                            InputProps={{
-                                style: {
-                                    color: isDark ? "#f1f5f9" : undefined,
-                                    backgroundColor: isDark ? "#334155" : undefined,
-                                },
-                            }}
-                        />
-                    </div>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        className="!shadow-none"
-                        onClick={() => handleOpenModal()}
-                    >
-                        + Add Product
-                    </Button>
-                </div>
-
-                {/* Action buttons */}
-                {selectedIds.length > 0 && (
-                    <div
-                        className={`flex gap-3 p-3 border-b ${isDark ? "border-gray-700 bg-[#24303f]" : "border-gray-300 bg-gray-50"
-                            }`}
-                    >
-                        {selectedIds.length === 1 && (
-                            <button
-                                onClick={() => handleEditClick()}
-                                className={`px-3 py-1 border flex items-center gap-2 transition ${isDark
-                                    ? "border-gray-600 text-gray-200 hover:bg-gray-700"
-                                    : "border-gray-400 text-black hover:bg-gray-100"
-                                    }`}
-                            >
-                                <Edit fontSize="small" /> Edit
-                            </button>
-                        )}
-                        <button
-                            className={`px-3 py-1 border flex items-center gap-2 cursor-pointer transition ${isDark
-                                ? "border-gray-600 text-red-400 hover:bg-red-500 hover:text-white"
-                                : "border-gray-400 text-red-600 hover:bg-red-100"
-                                }`}
-                            onClick={() => alert(`Delete products: ${selectedIds.join(", ")}`)}
-                        >
-                            <Delete fontSize="small" /> Delete
-                        </button>
-                    </div>
-                )}
-
-                {/* Table */}
-                <div className="flex-1 overflow-auto">
-                    <table
-                        className={`w-full text-sm ${isDark ? "text-gray-300" : "text-gray-700"
-                            }`}
-                    >
-                        <colgroup>
-                            <col style={{ width: "20px" }} />
-                            <col style={{ width: "50px" }} />
-                            <col style={{ width: "25%" }} />
-                            <col style={{ width: "20%" }} />
-                            <col style={{ width: "15%" }} />
-                            <col style={{ width: "15%" }} />
-                        </colgroup>
-                        <thead
-                            className={`border-y sticky top-0 z-10 ${isDark ? "bg-[#24303f] border-gray-700" : "bg-gray-100 border-gray-300"
-                                }`}
-                        >
-                            <tr>
-                                <th className="px-2 py-2 text-left font-medium">
-                                    <input
-                                        type="checkbox"
-                                        className="cursor-pointer"
-                                        checked={allSelected}
-                                        onChange={toggleSelectAll}
-                                    />
-                                </th>
-                                <th className="px-2 py-2 text-left font-medium">ID</th>
-                                <th className="px-3 py-2 text-left font-medium">Name</th>
-                                <th className="px-3 py-2 text-left font-medium">Category</th>
-                                <th className="px-3 py-2 text-left font-medium">Cost</th>
-                                <th className="px-3 py-2 text-left font-medium">Base</th>
-                                <th className="px-3 py-2 text-left font-medium"></th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {currProducts.map((product) => (
-                                <tr
-                                    key={product.id}
-                                    className={`border-b ${isDark
-                                        ? `border-gray-700 hover:bg-gray-800 ${selectedIds.includes(product.id)
-                                            ? "bg-gray-700"
-                                            : ""
-                                        }`
-                                        : `border-gray-300 hover:bg-gray-50 ${selectedIds.includes(product.id)
-                                            ? "bg-blue-50"
-                                            : ""
-                                        }`
-                                        }`}
-                                >
-                                    <td className="py-2 px-2">
-                                        <input
-                                            type="checkbox"
-                                            className="cursor-pointer"
-                                            checked={selectedIds.includes(product.id)}
-                                            onChange={() => toggleSelect(product.id)}
-                                        />
-                                    </td>
-                                    <td className="px-2 py-2">{product.id}</td>
-                                    <td
-                                        className={`px-3 py-2 font-medium ${isDark ? "text-gray-100" : "text-gray-900"
-                                            }`}
-                                    >
-                                        {product.name}
-                                    </td>
-                                    <td className="px-3 py-2">{product.category}</td>
-                                    <td className="px-3 py-2">
-                                        {product.purchaseRate} / {product.unit}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {product.saleRate} / {product.unit}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        <Button onClick={() => setActionOpen(!actionOpen)}>
-                                            <Ellipsis />
-                                        </Button>
-                                        <div className={actionOpen ? "block" : "hidden"}>
-                                            {/* Placeholder for future action menu */}
-                                            <Button onClick={() => alert(`Actions for product ID: ${product.id}`)}>
-                                                Actions
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filteredProducts.length === 0 && (
-                                <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="text-center py-6 text-gray-500 dark:text-gray-400"
-                                    >
-                                        No products found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div
-                    className={`flex justify-end items-center gap-3 p-3 border-t text-sm ${isDark ? "text-gray-300 border-gray-700" : "text-gray-700 border-gray-300"
-                        }`}
-                >
-                    <span>
-                        Page <strong>{currPage}</strong> of <strong>{totalPages}</strong>
-                    </span>
-                    <button
-                        onClick={() => setCurrentPage((p) => p - 1)}
-                        disabled={currPage === 1}
-                        className={`px-2 py-1 border disabled:opacity-50 ${isDark
-                            ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
-                            : "border-gray-300 bg-white hover:bg-gray-100"
-                            }`}
-                    >
-                        &lt;
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage((p) => p + 1)}
-                        disabled={currPage === totalPages}
-                        className={`px-2 py-1 border disabled:opacity-50 ${isDark
-                            ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
-                            : "border-gray-300 bg-white hover:bg-gray-100"
-                            }`}
-                    >
-                        &gt;
-                    </button>
-                </div>
-            </div>
-            <CreateProduct open={productModalOpen} onClose={handleCloseModal} productId={selectedProductId} />
-        </>
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-300">
+        Loading products...
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div
+        className={`h-full w-full flex flex-col border ${
+          isDark
+            ? "bg-[#1e293b] border-gray-700"
+            : "bg-white border-gray-300"
+        }`}
+      >
+        {/* Header */}
+        <div
+          className={`flex justify-between items-center p-3 border-b ${
+            isDark
+              ? "border-gray-700 bg-[#24303f]"
+              : "border-gray-300 bg-gray-50"
+          }`}
+        >
+          <div className="flex-1 mr-4">
+            <TextField
+              label="Search"
+              type="text"
+              placeholder="Search by name or category..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              fullWidth
+              size="small"
+              InputLabelProps={{
+                style: { color: isDark ? "#cbd5e1" : undefined },
+              }}
+              InputProps={{
+                style: {
+                  color: isDark ? "#f1f5f9" : undefined,
+                  backgroundColor: isDark ? "#334155" : undefined,
+                },
+              }}
+            />
+          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            className="!shadow-none"
+            onClick={handleOpenModal}
+          >
+            + Add Product
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="flex-1 overflow-auto relative">
+          <table
+            className={`w-full text-sm ${
+              isDark ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            <thead
+              className={`border-y sticky top-0 z-10 ${
+                isDark
+                  ? "bg-[#24303f] border-gray-700"
+                  : "bg-gray-100 border-gray-300"
+              }`}
+            >
+              <tr>
+                <th className="px-2 py-2 text-left font-medium">
+                  <input
+                    type="checkbox"
+                    className="cursor-pointer"
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
+                <th className="px-2 py-2 text-left font-medium">ID</th>
+                <th className="px-3 py-2 text-left font-medium">Name</th>
+                <th className="px-3 py-2 text-left font-medium">Category</th>
+                <th className="px-3 py-2 text-left font-medium">Cost</th>
+                <th className="px-3 py-2 text-left font-medium">Base</th>
+                <th className="px-3 py-2 text-center font-medium">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {currProducts.map((p) => (
+                <tr
+                  key={p.id}
+                  className={`border-b ${
+                    isDark
+                      ? `border-gray-700 hover:bg-gray-800 ${
+                          selectedIds.includes(p.id) ? "bg-gray-700" : ""
+                        }`
+                      : `border-gray-300 hover:bg-gray-50 ${
+                          selectedIds.includes(p.id) ? "bg-blue-50" : ""
+                        }`
+                  }`}
+                >
+                  <td className="py-2 px-2">
+                    <input
+                      type="checkbox"
+                      className="cursor-pointer"
+                      checked={selectedIds.includes(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                    />
+                  </td>
+                  <td className="px-2 py-2">{p.id}</td>
+                  <td
+                    className={`px-3 py-2 font-medium ${
+                      isDark ? "text-gray-100" : "text-gray-900"
+                    }`}
+                  >
+                    {p.name}
+                  </td>
+                  <td className="px-3 py-2">{p.category}</td>
+                  <td className="px-3 py-2">
+                    {p.purchaseRate} / {p.unit}
+                  </td>
+                  <td className="px-3 py-2">
+                    {p.saleRate} / {p.unit}
+                  </td>
+
+                  {/* Action Menu */}
+                  <td className="px-3 py-2 relative text-center">
+                    <Button
+                      onClick={() => toggleOpenMenu(p.id)}
+                      className="!min-w-0 !p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <Ellipsis className="w-5 h-5" />
+                    </Button>
+
+                    {/* Dropdown Menu */}
+                    {openMenuId === p.id && (
+                      <div
+                        className={`absolute right-10 top-8 w-36 rounded-md shadow-lg z-20 overflow-hidden border ${
+                          isDark
+                            ? "bg-[#1e293b] border-gray-700"
+                            : "bg-white border-gray-200"
+                        }`}
+                      >
+                        <button
+                          className={`flex items-center w-full px-3 py-2 text-sm gap-2 ${
+                            isDark
+                              ? "hover:bg-gray-700 text-gray-200"
+                              : "hover:bg-gray-100 text-gray-700"
+                          }`}
+                          onClick={() => handleEditClick(p.id)}
+                        >
+                          <Edit fontSize="small" /> Edit
+                        </button>
+                        <button
+                          className={`flex items-center w-full px-3 py-2 text-sm gap-2 ${
+                            isDark
+                              ? "hover:bg-gray-700 text-red-400"
+                              : "hover:bg-gray-100 text-red-600"
+                          }`}
+                          onClick={() => {
+                            // Handle delete here
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          <Delete fontSize="small" /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+
+              {filteredProducts.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="text-center py-6 text-gray-500 dark:text-gray-400"
+                  >
+                    No products found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Click outside handler */}
+          {openMenuId && (
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => setOpenMenuId(null)}
+            ></div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        <div
+          className={`flex justify-end items-center gap-3 p-3 border-t text-sm ${
+            isDark
+              ? "text-gray-300 border-gray-700"
+              : "text-gray-700 border-gray-300"
+          }`}
+        >
+          <span>
+            Page <strong>{currPage}</strong> of <strong>{totalPages}</strong>
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currPage === 1}
+            className={`px-2 py-1 border rounded disabled:opacity-50 ${
+              isDark
+                ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
+                : "border-gray-300 bg-white hover:bg-gray-100"
+            }`}
+          >
+            &lt;
+          </button>
+          <button
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currPage === totalPages}
+            className={`px-2 py-1 border rounded disabled:opacity-50 ${
+              isDark
+                ? "border-gray-600 bg-[#24303f] hover:bg-gray-700"
+                : "border-gray-300 bg-white hover:bg-gray-100"
+            }`}
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+
+      <CreateProduct
+        open={productModalOpen}
+        onClose={handleCloseModal}
+        productId={selectedProductId}
+      />
+    </>
+  );
 }
 
 export default ProductList;
